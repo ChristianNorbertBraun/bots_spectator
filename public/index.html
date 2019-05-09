@@ -34,7 +34,7 @@
   To begin the development, run `npm start` or `yarn start`.
   To create a production bundle, use `npm run build` or `yarn build`.
 -->
-<script id="shader-fs" type="x-shader/x-fragment">
+<script id="FragmentShader" type="x-shader/x-fragment">
         varying highp vec2 vTextureCoord;
         uniform sampler2D uSampler;
         void main(void) {
@@ -43,7 +43,7 @@
 
 </script>
 
-<script id="shader-vs" type="x-shader/x-vertex">
+<script id="VertexShader" type="x-shader/x-vertex">
         attribute vec2 aVertexPosition;
         attribute vec2 aTextureCoord;
         uniform mat3 perspective;

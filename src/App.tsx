@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
+import * as mygl from './gl';
 
 export const App: React.FC = () => {
     const [count, setCount] = useState(0);
-
     return (
         <div className="App">
             <Board/>
@@ -17,9 +17,13 @@ export const App: React.FC = () => {
 };
 
 const Board: React.FC = () => {
+    useEffect(() => {
+        console.log(`useEffect calls mygl.init`);
+        mygl.init();
+    });
     return (
         <div className="board">I am the board
-            <canvas style={{
+            <canvas id="Canvas" style={{
                 width: "100%",
                 height: "100%",
             }}>
