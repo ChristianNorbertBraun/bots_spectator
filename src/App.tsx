@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useState} from 'react';
 import './App.css';
 
-const App: React.FC = () => {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+export const App: React.FC = () => {
+    const [count, setCount] = useState(0);
 
-export default App;
+    return (
+        <div className="App">
+            <Board/>
+            <Drawer
+                count={count}
+                setCount={setCount}
+                onConnect={url => window.alert(`Connecting to ${url}`)}
+            />
+        </div>
+    );
+};
+
+const Board: React.FC = () => {
+    return (
+        <div className="board">I am the board
+            <canvas style={{
+                width: "100%",
+                height: "100%",
+            }}>
+                Your browser does not support HTML5 canvas.
+            </canvas>
+        </div>
+    );
+};
+
+const Drawer = (props: {
+    count: number,
+    setCount: (count: number) => void,
+    onConnect: (url: string) => void,
+}) => {
+
+    const addressInputRef = React.createRef<HTMLInputElement>();
+
+    return (
+        <div className="drawer">I am the drawer
+
+            <label>Address:</label>
+            <input ref={addressInputRef} type="text"/>
+            <button onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
+                Connect
+            </button>
+            Counter: {props.count}
+        </div>
+    );
+};
