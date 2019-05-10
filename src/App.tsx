@@ -18,8 +18,12 @@ export const App: React.FC = () => {
 
 const Board: React.FC = () => {
     useEffect(() => {
-            console.log(`useEffect calls mygl.init`);
-            mygl.init();
+            (async () => {
+                console.log(`useEffect calls mygl.init`);
+                const gl = mygl.getContext();
+                const glInfo = await mygl.init(gl);
+                mygl.render(gl, glInfo.programInfo, glInfo.texture);
+            })();
         },
         [] // no deps means only run this effect once (after mount)
     );
