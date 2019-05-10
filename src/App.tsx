@@ -17,22 +17,30 @@ export const App: React.FC = () => {
 };
 
 const Board: React.FC = () => {
+
+    const canvasRef = React.createRef<HTMLCanvasElement>();
+
     useEffect(() => {
-            (async () => {
-                console.log(`useEffect calls mygl.init`);
-                const gl = mygl.getContext();
-                const glInfo = await mygl.init(gl);
+            if (canvasRef.current == null) {
+                return;
+            }
+            const c = canvasRef.current;
+            const gl = c.getContext('webgl') || c.getContext('experimental-webgl')!!;
+            mygl.init(gl).then(glInfo => {
                 mygl.render(gl, glInfo.programInfo, glInfo.texture);
-            })();
+            });
         },
-        [] // no deps means only run this effect once (after mount)
+        [canvasRef] // no deps means only run this effect once (after mount)
     );
     return (
         <div className="board">I am the board
-            <canvas id="Canvas" style={{
-                width: "100%",
-                height: "100%",
-            }}>
+            <canvas
+                ref={canvasRef}
+                style={{
+                    width: "100%",
+                    height: "100%",
+                }}
+            >
                 Your browser does not support HTML5 canvas.
             </canvas>
         </div>

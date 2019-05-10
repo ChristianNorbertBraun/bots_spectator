@@ -12,11 +12,6 @@ interface ProgramInfo {
     textureLoc: WebGLUniformLocation,
 }
 
-export function getContext(): WebGLRenderingContext {
-    const c = D.getElementById('Canvas') as HTMLCanvasElement;
-    return c.getContext('webgl') || c.getContext('experimental-webgl')!!;
-}
-
 function compileShader(gl: WebGLRenderingContext, type: GLenum, src: string) {
     const shader = gl.createShader(type)!!;
     gl.shaderSource(shader, src);
@@ -129,6 +124,7 @@ function createTextureFrom(gl: WebGLRenderingContext, image: HTMLImageElement): 
 async function loadAtlas(): Promise<HTMLImageElement> {
     const a = new Image();
     a.src = 'atlas.gif';
+    console.log("Loading atlas image...");
     return new Promise(resolve => {
         a.onload = () => {
             console.log("Loaded atlas successfully.");
