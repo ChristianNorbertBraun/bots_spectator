@@ -2,6 +2,7 @@
   "name": "bots_spectator",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://christiannorbertbraun.github.io/bots_spectator/",
   "dependencies": {
     "@types/jest": "24.0.12",
     "@types/node": "12.0.0",
