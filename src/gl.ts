@@ -111,17 +111,16 @@ export async function init(gl: WebGLRenderingContext): Promise<InitInfo> {
 }
 
 export function render(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture) {
-    const resizeInfo = resize(gl);
-    initFrame(gl, pi, texture, resizeInfo);
+    const resizeInfo = resize(gl, pi);
+    initFrame(gl, pi, texture);
     drawSprite(gl, 0, 0, 0, 1, 1, pi, resizeInfo);
 }
 
-function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture, ri: ResizeInfo) {
+function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(pi.program);
     gl.bindBuffer(gl.ARRAY_BUFFER, pi.vertexBuffer);
     gl.vertexAttribPointer(pi.vertexBufferLoc, 2, gl.FLOAT, false, 0, 0);
-    gl.uniformMatrix3fv(pi.perspectiveLoc, false, ri.perspective);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.uniform1i(pi.textureLoc, 0);
@@ -208,10 +207,9 @@ function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: num
 
 interface ResizeInfo {
     spriteRad: number,
-    perspective: Float32Array,
 }
 
-function resize(gl: WebGLRenderingContext): ResizeInfo {
+function resize(gl: WebGLRenderingContext, pi: ProgramInfo): ResizeInfo {
     const width = gl.canvas.clientWidth,
         height = gl.canvas.clientHeight;
     // const halfWidth = width >> 1;
@@ -237,8 +235,9 @@ function resize(gl: WebGLRenderingContext): ResizeInfo {
         0, width / height, 0,
         0, 0, 1
     ]);
+    gl.uniformMatrix3fv(pi.perspectiveLoc, false, perspective);
+
     return {
         spriteRad,
-        perspective,
     };
 }
