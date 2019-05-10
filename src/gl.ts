@@ -1,5 +1,3 @@
-const FA = Float32Array;
-
 const vertexShaderSource = `
 attribute vec2 p;
 attribute vec2 uv;
@@ -50,7 +48,7 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     const vertexBuffer = gl.createBuffer()!!;
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER,
-        new FA([
+        new Float32Array([
             -1, 1,
             -1, -1,
             1, 1,
@@ -58,7 +56,7 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
         gl.STATIC_DRAW);
     const uvBuffer = gl.createBuffer()!!;
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new FA(calcUvCoords(atlas)), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(calcUvCoords(atlas)), gl.STATIC_DRAW);
     const vertexBufferLoc = getEnabledAttribLocation(gl, program, 'p');
     const uvBufferLoc = getEnabledAttribLocation(gl, program, 'uv');
 
@@ -194,7 +192,7 @@ function getEnabledAttribLocation(gl: WebGLRenderingContext, program: WebGLProgr
 }
 
 function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, xm: number, ym: number, pi: ProgramInfo, ri: ResizeInfo) {
-    const transformation = new FA([
+    const transformation = new Float32Array([
         1, 0, 0,
         0, 1, 0,
         0, 0, 1
@@ -234,7 +232,7 @@ function resize(gl: WebGLRenderingContext): ResizeInfo {
     // viewXMax = 1 - (mapCols * cellSize) + halfCellSize;
     // viewYMin = yMax - halfCellSize;
     // viewYMax = (mapRows * cellSize) - yMax - halfCellSize;
-    const perspective = new FA([
+    const perspective = new Float32Array([
         1, 0, 0,
         0, width / height, 0,
         0, 0, 1
