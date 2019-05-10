@@ -1,21 +1,21 @@
 var D = document;
 var FA = Float32Array;
 
-function getContext() {
-    var c = D.getElementById('Canvas');
-    return c.getContext('webgl') || c.getContext('experimental-webgl')
+function getContext(): WebGLRenderingContext {
+    var c = D.getElementById('Canvas') as HTMLCanvasElement;
+    return c.getContext('webgl') || c.getContext('experimental-webgl')!!;
 }
 
-function compileShader(gl, type, src) {
-    var shader = gl.createShader(type)
-    gl.shaderSource(shader, src)
-    gl.compileShader(shader)
+function compileShader(gl: WebGLRenderingContext, type: GLenum, src: string) {
+    var shader = gl.createShader(type)!!;
+    gl.shaderSource(shader, src);
+    gl.compileShader(shader);
     return shader
 }
 
-function initBuffers(gl, program) {
-    var vertexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
+function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram) {
+    var vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER,
         new FA([
             -1, 1,
@@ -37,11 +37,11 @@ function initBuffers(gl, program) {
 export function init() {
     var gl = getContext();
     //  var texture = createTextureFrom(atlas)
-    var program = gl.createProgram();
+    var program = gl.createProgram()!!;
     gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER,
-        D.getElementById('VertexShader').textContent));
+        D.getElementById('VertexShader')!!.textContent!!));
     gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER,
-        D.getElementById('FragmentShader').textContent));
+        D.getElementById('FragmentShader')!!.textContent!!));
     gl.linkProgram(program);
     gl.useProgram(program);
     initBuffers(gl, program);
