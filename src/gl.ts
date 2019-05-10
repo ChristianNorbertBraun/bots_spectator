@@ -1,5 +1,32 @@
-const D = document;
 const FA = Float32Array;
+
+const vertexShaderSource = `
+attribute vec2 p;
+attribute vec2 uv;
+uniform mat3 perspective;
+uniform mat3 transformation;
+varying vec2 vuv;
+
+void main() {
+  gl_Position = vec4(perspective * transformation * vec3(p, 1.), 1.);
+  vuv = uv;
+}
+`;
+
+const fragmentShaderSource = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+varying vec2 vuv;
+uniform sampler2D texture;
+
+void main() {
+  gl_FragColor = texture2D(texture, vuv.st).rgba;
+}
+`;
 
 interface ProgramInfo {
     program: WebGLProgram,
@@ -59,10 +86,8 @@ export async function init(gl: WebGLRenderingContext): Promise<InitInfo> {
     const atlas = await loadAtlas();
     const texture = createTextureFrom(gl, atlas);
     const program = gl.createProgram()!!;
-    gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER,
-        D.getElementById('VertexShader')!!.textContent!!));
-    gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER,
-        D.getElementById('FragmentShader')!!.textContent!!));
+    gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource));
+    gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource));
     gl.linkProgram(program);
     gl.useProgram(program);
     const programInfo = initBuffers(gl, program, atlas);
