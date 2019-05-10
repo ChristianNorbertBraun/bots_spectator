@@ -2,7 +2,10 @@
 
 # bots_spectator
 
-Round two of the infamous bots visualization tool
+Round two of the infamous bots visualization tool.
+
+[Launch it directly here](https://christiannorbertbraun.github.io/bots_spectator/).
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
