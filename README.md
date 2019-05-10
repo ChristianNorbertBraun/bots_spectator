@@ -1,4 +1,7 @@
+[![Build Status](https://travis-ci.org/ChristianNorbertBraun/bots_spectator.svg?branch=master)](https://travis-ci.org/ChristianNorbertBraun/bots_spectator)
+
 # bots_spectator
+
 Round two of the infamous bots visualization tool
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
