@@ -28,9 +28,10 @@ function initBuffers(gl, program) {
     // gl.bufferData(gl.ARRAY_BUFFER, new FA(calcUvCoords()), gl.STATIC_DRAW)
     // var vertexBufferLoc = getEnabledAttribLocation(program, 'p')
     // var uvBufferLoc = getEnabledAttribLocation(program, 'uv')
-    var perspectiveLoc = gl.getUniformLocation(program, 'perspective');
-    var transformationLoc = gl.getUniformLocation(program, 'transformation');
-    var textureLoc = gl.getUniformLocation(program, 'texture');
+
+    // var perspectiveLoc = gl.getUniformLocation(program, 'perspective');
+    // var transformationLoc = gl.getUniformLocation(program, 'transformation');
+    // var textureLoc = gl.getUniformLocation(program, 'texture');
 }
 
 export function init() {
