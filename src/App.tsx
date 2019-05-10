@@ -18,9 +18,11 @@ export const App: React.FC = () => {
 
 const Board: React.FC = () => {
     useEffect(() => {
-        console.log(`useEffect calls mygl.init`);
-        mygl.init();
-    });
+            console.log(`useEffect calls mygl.init`);
+            mygl.init();
+        },
+        [] // no deps means only run this effect once (after mount)
+    );
     return (
         <div className="board">I am the board
             <canvas id="Canvas" style={{
