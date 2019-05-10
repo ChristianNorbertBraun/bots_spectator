@@ -34,28 +34,35 @@
   To begin the development, run `npm start` or `yarn start`.
   To create a production bundle, use `npm run build` or `yarn build`.
 -->
-<script id="FragmentShader" type="x-shader/x-fragment">
-        varying highp vec2 vTextureCoord;
-        uniform sampler2D uSampler;
-        void main(void) {
-          gl_FragColor = texture2D(uSampler, vTextureCoord).rgba;
-        }
 
+<script id="FragmentShader" type="x-shader/x-fragment">
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+varying vec2 vuv;
+uniform sampler2D texture;
+
+void main() {
+	gl_FragColor = texture2D(texture, vuv.st).rgba;
+}
 </script>
 
 <script id="VertexShader" type="x-shader/x-vertex">
-        attribute vec2 aVertexPosition;
-        attribute vec2 aTextureCoord;
-        uniform mat3 perspective;
-        uniform mat3 transformation;
-        varying vec2 vTextureCoord;
-        void main(void) {
-          gl_Position = vec4(perspective *
-            transformation *
-            vec3(aVertexPosition, 1.0), 1.0);
-          vTextureCoord = aTextureCoord;
-        }
+attribute vec2 p;
+attribute vec2 uv;
+uniform mat3 perspective;
+uniform mat3 transformation;
+varying vec2 vuv;
 
+void main() {
+	gl_Position = vec4(perspective * transformation *
+		vec3(p, 1.), 1.);
+	vuv = uv;
+}
 </script>
+
 </body>
 </html>
