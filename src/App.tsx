@@ -5,6 +5,7 @@ import {Replay} from "./reader";
 
 export const App: React.FC = () => {
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
+    const [currentTurn, setCurrentTurn] = useState(0);
     return (
         <div className="App">
             <Board/>
@@ -13,9 +14,13 @@ export const App: React.FC = () => {
                 onConnect={url => window.alert(`Connecting to ${url}`)}
                 onReplayFileUploaded={replay => {
                     console.log("Replay: ", replay);
+                    setCurrentTurn(0);
                     setReplay(replay);
                 }}
+                currentTurn={currentTurn}
+                setCurrentTurn={setCurrentTurn}
             />
+            {replay && JSON.stringify(replay.turns[currentTurn])}
         </div>
     );
 };
@@ -28,13 +33,14 @@ const Board: React.FC = () => {
             if (canvasRef.current == null) {
                 return;
             }
+            console.log("Initializing WebGL");
             const c = canvasRef.current;
             const gl = c.getContext('webgl') || c.getContext('experimental-webgl')!!;
             mygl.init(gl).then(glInfo => {
                 mygl.render(gl, glInfo.programInfo, glInfo.texture);
             });
         },
-        [canvasRef] // no deps means only run this effect once (after mount)
+        [] // no deps means only run this effect once (after mount)
     );
     return (
         <div className="board">
@@ -55,6 +61,8 @@ const Drawer = (props: {
     onConnect: (url: string) => void,
     onReplayFileUploaded: (replay: Replay) => void,
     replay?: Replay,
+    currentTurn: number,
+    setCurrentTurn: (turn: number) => void,
 }) => {
 
     const addressInputRef = React.createRef<HTMLInputElement>();
@@ -89,6 +97,8 @@ const Drawer = (props: {
             {props.replay &&
             <>
                 <div>Replay info:</div>
+                <div>Current turn: {props.currentTurn}</div>
+                <button onClick={() => props.setCurrentTurn(props.currentTurn + 1)}>+1</button>
                 <div>Max turns: {props.replay.max_turns}</div>
             </>
             }
