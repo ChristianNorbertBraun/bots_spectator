@@ -111,9 +111,9 @@ export async function init(gl: WebGLRenderingContext): Promise<InitInfo> {
 }
 
 export function render(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture) {
-    const resizeInfo = resize(gl, pi);
+    resize(gl, pi);
     initFrame(gl, pi, texture);
-    drawSprite(gl, 0, 0, 0, 1, 1, pi, resizeInfo);
+    drawSprite(gl, 0, 0, 0, 1, 1, pi);
 }
 
 function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture) {
@@ -190,35 +190,32 @@ function getEnabledAttribLocation(gl: WebGLRenderingContext, program: WebGLProgr
     return loc;
 }
 
-function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, xm: number, ym: number, pi: ProgramInfo, ri: ResizeInfo) {
+function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, xm: number, ym: number, pi: ProgramInfo) {
+    const spriteRad = .05;
     const transformation = new Float32Array([
         1, 0, 0,
         0, 1, 0,
         0, 0, 1
     ]);
     gl.vertexAttribPointer(pi.uvBufferLoc, 2, gl.FLOAT, false, 0, sprite << 5);
-    transformation[0] = ri.spriteRad * (xm || 1);
-    transformation[4] = ri.spriteRad * (ym || 1);
+    transformation[0] = spriteRad * (xm || 1);
+    transformation[4] = spriteRad * (ym || 1);
     transformation[6] = x;
     transformation[7] = y;
     gl.uniformMatrix3fv(pi.transformationLoc, false, transformation);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
-interface ResizeInfo {
-    spriteRad: number,
-}
-
-function resize(gl: WebGLRenderingContext, pi: ProgramInfo): ResizeInfo {
+function resize(gl: WebGLRenderingContext, pi: ProgramInfo) {
     const width = gl.canvas.clientWidth,
         height = gl.canvas.clientHeight;
     // const halfWidth = width >> 1;
     // const halfHeight = height >> 1;
-    const yMax = height / width;
+//    const yMax = height / width;
     gl.canvas.width = width;
     gl.canvas.height = height;
     gl.viewport(0, 0, width, height);
-    const spriteRad = Math.min(1, yMax) * .1;
+//    const spriteRad = Math.min(1, yMax) * .1;
     // cellSize = spriteRad * 2;
     // npcSpeed = spriteRad * .2;
     // spaceWidth = spriteRad * .65;
@@ -236,8 +233,4 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo): ResizeInfo {
         0, 0, 1
     ]);
     gl.uniformMatrix3fv(pi.perspectiveLoc, false, perspective);
-
-    return {
-        spriteRad,
-    };
 }
