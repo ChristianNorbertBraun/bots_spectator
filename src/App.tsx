@@ -6,9 +6,11 @@ import {Replay} from "./reader";
 export const App: React.FC = () => {
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
     const [currentTurn, setCurrentTurn] = useState(0);
+    // TODO Remove this hook eventually, it loads a dummy replay to ease testing
     useEffect(() => {
         readExampleReplay().then(setReplay);
     }, []);
+
     return (
         <div className="App">
             {replay &&
@@ -72,6 +74,7 @@ const Board = (props: {
             }
         }
     });
+
     return (
         <div className="Board">
             <canvas
@@ -94,7 +97,6 @@ const Drawer = (props: {
     currentTurn: number,
     setCurrentTurn: (turn: number) => void,
 }) => {
-
     const addressInputRef = useRef<HTMLInputElement>(null);
 
     return (
