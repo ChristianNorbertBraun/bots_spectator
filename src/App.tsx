@@ -28,7 +28,6 @@ export const App: React.FC = () => {
                 currentTurn={currentTurn}
                 setCurrentTurn={setCurrentTurn}
             />
-            {replay && JSON.stringify(replay.turns[currentTurn])}
         </div>
     );
 };
