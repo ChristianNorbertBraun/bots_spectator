@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import './App.css';
 import * as mygl from './gl';
+import {InitInfo} from './gl';
 import {Replay} from "./reader";
 
 export const App: React.FC = () => {
@@ -38,6 +39,7 @@ const Board = (props: {
     currentTurn: number,
 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [glInfo, setGlInfo] = useState<InitInfo>();
 
     useEffect(() => {
             if (canvasRef.current == null) {
@@ -47,14 +49,28 @@ const Board = (props: {
             const c = canvasRef.current;
             const gl = c.getContext('webgl') || c.getContext('experimental-webgl')!!;
             mygl.init(gl).then(glInfo => {
-                glInfo.initFrame();
-                glInfo.drawSprite(0, 0, 0);
-                glInfo.drawSprite(1, 1, 0);
-                glInfo.drawSprite(3, 0, 1);
+                console.log("Setting glInfoRef");
+                setGlInfo(glInfo);
             });
         },
         [] // no deps means only run this effect once (after mount)
     );
+
+    useEffect(() => {
+        if (glInfo === undefined) return;
+        console.log("Rendering frame");
+        glInfo.initFrame();
+        const turn = props.replay.turns[props.currentTurn];
+        for (let y = 0; y < props.replay.map_height; ++y) {
+            for (let x = 0; x < props.replay.map_width; ++x) {
+                const c = turn.map.charAt(x + y * props.replay.map_width);
+                if (c === 'A') {
+                    console.log(`Rendering bot at ${x},${y}`);
+                    glInfo.drawSprite(0, x, y);
+                }
+            }
+        }
+    });
     return (
         <div className="board">
             <canvas

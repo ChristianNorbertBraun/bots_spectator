@@ -75,7 +75,7 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     };
 }
 
-interface InitInfo {
+export interface InitInfo {
     texture: WebGLTexture,
     programInfo: ProgramInfo,
     initFrame: () => void,
@@ -192,7 +192,7 @@ function getEnabledAttribLocation(gl: WebGLRenderingContext, program: WebGLProgr
 }
 
 function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, xm: number, ym: number, pi: ProgramInfo) {
-    const spriteRad = .1;
+    const spriteRad = .03;
     const transformation = new Float32Array([
         spriteRad * (xm || 1), 0, 0,
         0, spriteRad * (ym || 1), 0,
