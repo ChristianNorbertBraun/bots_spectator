@@ -1,15 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import './App.css';
 import * as mygl from './gl';
 
 export const App: React.FC = () => {
-    const [count, setCount] = useState(0);
+//    const [count, setCount] = useState(0);
     return (
         <div className="App">
             <Board/>
             <Drawer
-                count={count}
-                setCount={setCount}
                 onConnect={url => window.alert(`Connecting to ${url}`)}
             />
         </div>
@@ -33,7 +31,7 @@ const Board: React.FC = () => {
         [canvasRef] // no deps means only run this effect once (after mount)
     );
     return (
-        <div className="board">I am the board
+        <div className="board">
             <canvas
                 ref={canvasRef}
                 style={{
@@ -48,22 +46,18 @@ const Board: React.FC = () => {
 };
 
 const Drawer = (props: {
-    count: number,
-    setCount: (count: number) => void,
     onConnect: (url: string) => void,
 }) => {
 
     const addressInputRef = React.createRef<HTMLInputElement>();
 
     return (
-        <div className="drawer">I am the drawer
-
+        <div className="drawer">
             <label>Address:</label>
             <input ref={addressInputRef} type="text"/>
             <button onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
                 Connect
             </button>
-            Counter: {props.count}
         </div>
     );
 };

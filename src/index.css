@@ -13,11 +13,11 @@ code {
 }
 
 .board {
-    color: green;
-    width: auto;
+    width: 80%;
+    display: inline-block;
 }
 
 .drawer {
-    width: 100px;
-    float: right;
+    width: 20%;
+    display: inline-block;
 }
