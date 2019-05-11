@@ -1,12 +1,14 @@
+import {mat4} from "gl-matrix";
+
 const vertexShaderSource = `
 attribute vec2 p;
 attribute vec2 uv;
-uniform mat3 perspective;
-uniform mat3 transformation;
+uniform mat4 perspective;
+uniform mat4 transformation;
 varying vec2 vuv;
 
 void main() {
-  gl_Position = vec4(perspective * transformation * vec3(p, 1.), 1.);
+  gl_Position = perspective * transformation * vec4(p, 1., 1.);
   vuv = uv;
 }
 `;
@@ -192,42 +194,33 @@ function getEnabledAttribLocation(gl: WebGLRenderingContext, program: WebGLProgr
 }
 
 function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, xm: number, ym: number, pi: ProgramInfo) {
-    const spriteRad = .03;
+    const spriteRad = 1;
     const transformation = new Float32Array([
-        spriteRad * (xm || 1), 0, 0,
-        0, spriteRad * (ym || 1), 0,
-        x * spriteRad, y * spriteRad, 1
+        spriteRad * (xm || 1), 0, 0, 0,
+        0, spriteRad * (ym || 1), 0, 0,
+        x * spriteRad, y * spriteRad, 1, 0,
+        0, 0, 0, 1,
     ]);
     gl.vertexAttribPointer(pi.uvBufferLoc, 2, gl.FLOAT, false, 0, sprite << 5);
-    gl.uniformMatrix3fv(pi.transformationLoc, false, transformation);
+    gl.uniformMatrix4fv(pi.transformationLoc, false, transformation);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
 function resize(gl: WebGLRenderingContext, pi: ProgramInfo) {
-    const width = gl.canvas.clientWidth,
-        height = gl.canvas.clientHeight;
-    // const halfWidth = width >> 1;
-    // const halfHeight = height >> 1;
-//    const yMax = height / width;
+    const width = gl.canvas.clientWidth;
+    const height = gl.canvas.clientHeight;
     gl.canvas.width = width;
     gl.canvas.height = height;
     gl.viewport(0, 0, width, height);
-//    const spriteRad = Math.min(1, yMax) * .1;
-    // cellSize = spriteRad * 2;
-    // npcSpeed = spriteRad * .2;
-    // spaceWidth = spriteRad * .65;
-    // messageY = yMax - spriteRad;
-    // maxColsInView = (2 / cellSize | 0) + 2;
-    // maxRowsInView = ((yMax + yMax) / cellSize | 0) + 2;
-    // var halfCellSize = cellSize * .5;
-    // viewXMin = -1 + halfCellSize;
-    // viewXMax = 1 - (mapCols * cellSize) + halfCellSize;
-    // viewYMin = yMax - halfCellSize;
-    // viewYMax = (mapRows * cellSize) - yMax - halfCellSize;
-    const perspective = new Float32Array([
-        1, 0, 0,
-        0, width / height, 0,
-        0, 0, 1
-    ]);
-    gl.uniformMatrix3fv(pi.perspectiveLoc, false, perspective);
+    const perspective = mat4.create();
+    mat4.ortho(
+        perspective,
+        0,
+        32,
+        0,
+        32,
+        -10,
+        10,
+    );
+    gl.uniformMatrix4fv(pi.perspectiveLoc, false, perspective);
 }

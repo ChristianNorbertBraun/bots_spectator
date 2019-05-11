@@ -65,6 +65,8 @@ const Board = (props: {
                 if (c === 'A') {
                     console.log(`Rendering bot at ${x},${y}`);
                     myGL.drawSprite(0, x, y);
+                } else {
+                    myGL.drawSprite(2, x, y);
                 }
             }
         }
