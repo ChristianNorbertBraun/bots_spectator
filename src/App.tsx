@@ -1,15 +1,21 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
 import * as mygl from './gl';
+import {Replay} from "./reader";
 
 export const App: React.FC = () => {
-//    const [count, setCount] = useState(0);
+    const [replay, setReplay] = useState<Replay | null>(null);
     return (
         <div className="App">
             <Board/>
             <Drawer
                 onConnect={url => window.alert(`Connecting to ${url}`)}
+                onReplayFileUploaded={replay => {
+                    console.log("Replay: ", replay);
+                    setReplay(replay);
+                }}
             />
+            Replay: {JSON.stringify(replay)}
         </div>
     );
 };
@@ -47,6 +53,7 @@ const Board: React.FC = () => {
 
 const Drawer = (props: {
     onConnect: (url: string) => void,
+    onReplayFileUploaded: (replay: Replay) => void,
 }) => {
 
     const addressInputRef = React.createRef<HTMLInputElement>();
@@ -57,12 +64,17 @@ const Drawer = (props: {
                 id="replayFileInput"
                 type="file"
                 className="inputfile"
-                onChange={e => {
+                onChange={async e => {
                     e.preventDefault();
                     if (e.target.files != null && e.target.files.length > 0) {
-                        const file = e.target.files[0];
-                        console.log("file selected: ", file);
+                        const file: File = e.target.files[0];
+                        console.log("File selected: ", file);
+                        e.target.value = ''; // Reset value, so user may upload the same filename again
+                        const content = await readFileContents(file);
+                        const replay: Replay = JSON.parse(content);
+                        props.onReplayFileUploaded(replay);
                     }
+
                 }}
             />
             <label htmlFor="replayFileInput">
@@ -76,3 +88,14 @@ const Drawer = (props: {
         </div>
     );
 };
+
+async function readFileContents(file: File): Promise<string> {
+    return new Promise<string>(resolve => {
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = function (event) {
+            const contents = reader.result!! as string;
+            resolve(contents);
+        };
+    });
+}
