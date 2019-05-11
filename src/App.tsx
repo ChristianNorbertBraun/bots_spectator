@@ -160,6 +160,9 @@ async function readExampleReplay(): Promise<Replay> {
     return JSON.parse(content);
 }
 
+/**
+ * Adapted from https://usehooks.com/useWindowSize/
+ */
 function useWindowSize() {
     const [windowSize, setWindowSize] = useState(getWindowSize);
 
