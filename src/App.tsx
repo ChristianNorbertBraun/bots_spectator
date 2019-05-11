@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import './App.css';
 import * as mygl from './gl';
 import {Replay} from "./reader";
@@ -27,7 +27,7 @@ export const App: React.FC = () => {
 
 const Board: React.FC = () => {
 
-    const canvasRef = React.createRef<HTMLCanvasElement>();
+    const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
             if (canvasRef.current == null) {
@@ -65,7 +65,7 @@ const Drawer = (props: {
     setCurrentTurn: (turn: number) => void,
 }) => {
 
-    const addressInputRef = React.createRef<HTMLInputElement>();
+    const addressInputRef = useRef<HTMLInputElement>(null);
 
     return (
         <div className="drawer">
