@@ -98,7 +98,16 @@ const Drawer = (props: {
             <>
                 <div>Replay info:</div>
                 <div>Current turn: {props.currentTurn}</div>
-                <button onClick={() => props.setCurrentTurn(props.currentTurn + 1)}>+1</button>
+                <button
+                    disabled={props.currentTurn <= 0}
+                    onClick={() => props.setCurrentTurn(props.currentTurn - 1)}
+                >-
+                </button>
+                <button
+                    disabled={props.currentTurn >= props.replay.max_turns - 1}
+                    onClick={() => props.setCurrentTurn(props.currentTurn + 1)}
+                >+
+                </button>
                 <div>Max turns: {props.replay.max_turns}</div>
             </>
             }
