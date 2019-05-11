@@ -21,3 +21,23 @@ code {
     width: 20%;
     display: inline-block;
 }
+
+/* Styles for upload file buttons, code adapted from here
+https://tympanus.net/codrops/2015/09/15/styling-customizing-file-inputs-smart-way/
+ */
+.inputfile {
+    display: none;
+}
+
+.inputfile + label {
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: #bbb;
+    display: inline-block;
+    padding: 5px;
+}
+
+.inputfile:focus + label,
+.inputfile + label:hover {
+    background-color: #ccc;
+}

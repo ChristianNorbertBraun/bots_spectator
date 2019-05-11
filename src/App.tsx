@@ -53,6 +53,21 @@ const Drawer = (props: {
 
     return (
         <div className="drawer">
+            <input
+                id="replayFileInput"
+                type="file"
+                className="inputfile"
+                onChange={e => {
+                    e.preventDefault();
+                    if (e.target.files != null && e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        console.log("file selected: ", file);
+                    }
+                }}
+            />
+            <label htmlFor="replayFileInput">
+                Load replay from file
+            </label>
             <label>Address:</label>
             <input ref={addressInputRef} type="text"/>
             <button onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
