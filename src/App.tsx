@@ -38,6 +38,7 @@ const Board = (props: {
 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [myGL, setMyGL] = useState<MyGL>();
+    useWindowSize(); // This dependencies triggers a re-render when the window size changes
 
     useEffect(() => {
             if (canvasRef.current == null) {
@@ -159,4 +160,27 @@ async function readExampleReplay(): Promise<Replay> {
     const response = await fetch('/result1.json');
     const content = await response.text();
     return JSON.parse(content);
+}
+
+function useWindowSize() {
+    const [windowSize, setWindowSize] = useState(getWindowSize);
+
+    useEffect(() => {
+        function handleResize() {
+            setWindowSize(getWindowSize());
+        }
+
+        window.addEventListener('resize', handleResize);
+        return (): void => window.removeEventListener('resize', handleResize);
+    }, []); // Empty array ensures that effect is only run on mount and unmount
+
+    return windowSize;
+}
+
+function getWindowSize() {
+    const isClient = typeof window === 'object';
+    return {
+        width: isClient ? window.innerWidth : undefined,
+        height: isClient ? window.innerHeight : undefined
+    };
 }
