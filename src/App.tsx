@@ -4,18 +4,18 @@ import * as mygl from './gl';
 import {Replay} from "./reader";
 
 export const App: React.FC = () => {
-    const [replay, setReplay] = useState<Replay | null>(null);
+    const [replay, setReplay] = useState<Replay | undefined>(undefined);
     return (
         <div className="App">
             <Board/>
             <Drawer
+                replay={replay}
                 onConnect={url => window.alert(`Connecting to ${url}`)}
                 onReplayFileUploaded={replay => {
                     console.log("Replay: ", replay);
                     setReplay(replay);
                 }}
             />
-            Replay: {JSON.stringify(replay)}
         </div>
     );
 };
@@ -54,6 +54,7 @@ const Board: React.FC = () => {
 const Drawer = (props: {
     onConnect: (url: string) => void,
     onReplayFileUploaded: (replay: Replay) => void,
+    replay?: Replay,
 }) => {
 
     const addressInputRef = React.createRef<HTMLInputElement>();
@@ -85,6 +86,12 @@ const Drawer = (props: {
             <button onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
                 Connect
             </button>
+            {props.replay &&
+            <>
+                <div>Replay info:</div>
+                <div>Max turns: {props.replay.max_turns}</div>
+            </>
+            }
         </div>
     );
 };
