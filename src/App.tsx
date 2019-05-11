@@ -6,9 +6,17 @@ import {Replay} from "./reader";
 export const App: React.FC = () => {
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
     const [currentTurn, setCurrentTurn] = useState(0);
+    useEffect(() => {
+        readExampleReplay().then(setReplay);
+    }, []);
     return (
         <div className="App">
-            <Board/>
+            {replay &&
+            <Board
+                replay={replay}
+                currentTurn={currentTurn}
+            />
+            }
             <Drawer
                 replay={replay}
                 onConnect={url => window.alert(`Connecting to ${url}`)}
@@ -25,8 +33,10 @@ export const App: React.FC = () => {
     );
 };
 
-const Board: React.FC = () => {
-
+const Board = (props: {
+    replay: Replay,
+    currentTurn: number,
+}) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -37,7 +47,10 @@ const Board: React.FC = () => {
             const c = canvasRef.current;
             const gl = c.getContext('webgl') || c.getContext('experimental-webgl')!!;
             mygl.init(gl).then(glInfo => {
-                mygl.render(gl, glInfo.programInfo, glInfo.texture);
+                glInfo.initFrame();
+                glInfo.drawSprite(0, 0, 0);
+                glInfo.drawSprite(1, 1, 0);
+                glInfo.drawSprite(3, 0, 1);
             });
         },
         [] // no deps means only run this effect once (after mount)
@@ -124,4 +137,10 @@ async function readFileContents(file: File): Promise<string> {
             resolve(contents);
         };
     });
+}
+
+async function readExampleReplay(): Promise<Replay> {
+    const response = await fetch('/result1.json');
+    const content = await response.text();
+    return JSON.parse(content);
 }

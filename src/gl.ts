@@ -49,10 +49,10 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER,
         new Float32Array([
-            -1, 1,
-            -1, -1,
+            0, 1,
+            0, 0,
             1, 1,
-            1, -1]),
+            1, 0]),
         gl.STATIC_DRAW);
     const uvBuffer = gl.createBuffer()!!;
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
@@ -78,6 +78,8 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
 interface InitInfo {
     texture: WebGLTexture,
     programInfo: ProgramInfo,
+    initFrame: () => void,
+    drawSprite: (spriteId: number, x: number, y: number) => void,
 }
 
 export async function init(gl: WebGLRenderingContext): Promise<InitInfo> {
@@ -107,16 +109,15 @@ export async function init(gl: WebGLRenderingContext): Promise<InitInfo> {
     return {
         texture,
         programInfo,
+        initFrame: () => initFrame(gl, programInfo, texture),
+        drawSprite: (spriteId: number, x: number, y: number) => {
+            drawSprite(gl, spriteId, x, y, 1, 1, programInfo);
+        }
     };
 }
 
-export function render(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture) {
-    resize(gl, pi);
-    initFrame(gl, pi, texture);
-    drawSprite(gl, 0, 0, 0, 1, 1, pi);
-}
-
 function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture) {
+    resize(gl, pi);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(pi.program);
     gl.bindBuffer(gl.ARRAY_BUFFER, pi.vertexBuffer);
@@ -191,17 +192,13 @@ function getEnabledAttribLocation(gl: WebGLRenderingContext, program: WebGLProgr
 }
 
 function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, xm: number, ym: number, pi: ProgramInfo) {
-    const spriteRad = .05;
+    const spriteRad = .1;
     const transformation = new Float32Array([
-        1, 0, 0,
-        0, 1, 0,
-        0, 0, 1
+        spriteRad * (xm || 1), 0, 0,
+        0, spriteRad * (ym || 1), 0,
+        x * spriteRad, y * spriteRad, 1
     ]);
     gl.vertexAttribPointer(pi.uvBufferLoc, 2, gl.FLOAT, false, 0, sprite << 5);
-    transformation[0] = spriteRad * (xm || 1);
-    transformation[4] = spriteRad * (ym || 1);
-    transformation[6] = x;
-    transformation[7] = y;
     gl.uniformMatrix3fv(pi.transformationLoc, false, transformation);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
