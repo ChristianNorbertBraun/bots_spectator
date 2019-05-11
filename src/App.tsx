@@ -73,7 +73,7 @@ const Board = (props: {
         }
     });
     return (
-        <div className="board">
+        <div className="Board">
             <canvas
                 ref={canvasRef}
                 style={{
@@ -98,7 +98,7 @@ const Drawer = (props: {
     const addressInputRef = useRef<HTMLInputElement>(null);
 
     return (
-        <div className="drawer">
+        <div className="Drawer">
             <input
                 id="replayFileInput"
                 type="file"
