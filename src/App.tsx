@@ -23,7 +23,6 @@ export const App: React.FC = () => {
                 replay={replay}
                 onConnect={url => window.alert(`Connecting to ${url}`)}
                 onReplayFileUploaded={replay => {
-                    console.log("Replay: ", replay);
                     setCurrentTurn(0);
                     setReplay(replay);
                 }}
@@ -50,7 +49,6 @@ const Board = (props: {
             const c = canvasRef.current;
             const gl = c.getContext('webgl') || c.getContext('experimental-webgl')!!;
             createMyGL(gl).then(myGL => {
-                console.log("Setting glInfoRef");
                 setMyGL(myGL);
             });
         },
@@ -66,7 +64,6 @@ const Board = (props: {
             for (let x = 0; x < props.replay.map_width; ++x) {
                 const c = turn.map.charAt(x + y * props.replay.map_width);
                 if (c === 'A') {
-                    console.log(`Rendering bot at ${x},${y}`);
                     myGL.drawSprite(0, x, y);
                 } else {
                     myGL.drawSprite(2, x, y);
@@ -109,7 +106,6 @@ const Drawer = (props: {
                     e.preventDefault();
                     if (e.target.files != null && e.target.files.length > 0) {
                         const file: File = e.target.files[0];
-                        console.log("File selected: ", file);
                         e.target.value = ''; // Reset value, so user may upload the same filename again
                         const content = await readFileContents(file);
                         const replay: Replay = JSON.parse(content);
