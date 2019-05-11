@@ -75,14 +75,14 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     };
 }
 
-export interface InitInfo {
+export interface MyGL {
     texture: WebGLTexture,
     programInfo: ProgramInfo,
     initFrame: () => void,
     drawSprite: (spriteId: number, x: number, y: number) => void,
 }
 
-export async function init(gl: WebGLRenderingContext): Promise<InitInfo> {
+export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
     const atlas = await loadAtlas();
     const texture = createTextureFrom(gl, atlas);
     const program = gl.createProgram()!!;
