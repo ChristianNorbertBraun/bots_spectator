@@ -155,7 +155,7 @@ async function readFileContents(file: File): Promise<string> {
 }
 
 async function readExampleReplay(): Promise<Replay> {
-    const response = await fetch('/result1.json');
+    const response = await fetch('result1.json');
     const content = await response.text();
     return JSON.parse(content);
 }
