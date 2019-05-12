@@ -165,9 +165,9 @@ function calcUvCoords(atlas: HTMLImageElement): number[] {
         nx = .5 * xf,
         ny = .5 * yf,
         tileSize = 16;
-    for (var y = 0, h = atlas.height; y < h; y += tileSize) {
-        for (var x = 0, w = atlas.width; x < w; x += tileSize) {
-            var l = x * xf,
+    for (let y = 0; y < atlas.height; y += tileSize) {
+        for (let x = 0; x < atlas.width; x += tileSize) {
+            const l = x * xf,
                 t = y * yf,
                 r = l + tileSize * xf,
                 b = t + tileSize * yf;
