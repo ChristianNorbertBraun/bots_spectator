@@ -59,8 +59,11 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     const uvBuffer = gl.createBuffer()!!;
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(calcUvCoords(atlas)), gl.STATIC_DRAW);
-    const vertexBufferLoc = getEnabledAttribLocation(gl, program, 'p');
-    const uvBufferLoc = getEnabledAttribLocation(gl, program, 'uv');
+
+    const vertexBufferLoc = gl.getAttribLocation(program, 'p');
+    gl.enableVertexAttribArray(vertexBufferLoc);
+    const uvBufferLoc = gl.getAttribLocation(program, 'uv');
+    gl.enableVertexAttribArray(uvBufferLoc);
 
     const perspectiveLoc = gl.getUniformLocation(program, 'perspective')!!;
     const transformationLoc = gl.getUniformLocation(program, 'transformation')!!;
@@ -185,12 +188,6 @@ function calcUvCoords(atlas: HTMLImageElement): number[] {
         }
     }
     return coords;
-}
-
-function getEnabledAttribLocation(gl: WebGLRenderingContext, program: WebGLProgram, name: string): number {
-    const loc = gl.getAttribLocation(program, name);
-    gl.enableVertexAttribArray(loc);
-    return loc;
 }
 
 function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, xm: number, ym: number, pi: ProgramInfo) {
