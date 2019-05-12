@@ -204,18 +204,38 @@ function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: num
 }
 
 function resize(gl: WebGLRenderingContext, pi: ProgramInfo) {
-    const width = gl.canvas.clientWidth;
-    const height = gl.canvas.clientHeight;
-    gl.canvas.width = width;
-    gl.canvas.height = height;
-    gl.viewport(0, 0, width, height);
+    const canvasWidth = gl.canvas.clientWidth;
+    const canvasHeight = gl.canvas.clientHeight;
+    gl.canvas.width = canvasWidth;
+    gl.canvas.height = canvasHeight;
+    gl.viewport(0, 0, canvasWidth, canvasHeight);
+
+    // The rect in world space that shall be visible and centered in canvas
+    const worldRect = {
+        x: 0,
+        y: 0,
+        width: 32,
+        height: 32,
+    };
+
+    const scaleX = worldRect.width / canvasWidth;
+    const scaleY = worldRect.height / canvasHeight;
+    const scale = Math.max(scaleX, scaleY);
+
+    // Canvas dimensions in world space
+    const canvasWorldWidth = scale * canvasWidth;
+    const canvasWorldHeight = scale * canvasHeight;
+
+    const offX = (worldRect.width - canvasWorldWidth) / 2;
+    const offY = (worldRect.height - canvasWorldHeight) / 2;
+
     const perspective = mat4.create();
     mat4.ortho(
         perspective,
-        0,
-        32,
-        0,
-        32,
+        offX + worldRect.x,
+        offX + worldRect.x + scale * canvasWidth,
+        offY + worldRect.y,
+        offY + worldRect.y + scale * canvasHeight,
         -10,
         10,
     );
