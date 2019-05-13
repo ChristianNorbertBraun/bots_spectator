@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
-import {Replay} from "./reader";
+import {Header, Replay, Results, Turn} from "./reader";
 import {Drawer} from "./Drawer";
 import {Board} from "./Board";
 
@@ -22,7 +22,17 @@ export const App: React.FC = () => {
             }
             <Drawer
                 replay={replay}
-                onConnect={url => window.alert(`Connecting to ${url}`)}
+                onConnect={url => connectAsSpectator(url, {
+                    onHeader: (header: Header) => {
+                        console.log("on Header: ", header);
+                    },
+                    onTurn: (turn: Turn) => {
+                        console.log("on Turn: ", turn);
+                    },
+                    onResults: (results: Results) => {
+                        console.log("on Header: ", results);
+                    },
+                })}
                 onReplayFileUploaded={replay => {
                     setCurrentTurn(0);
                     setReplay(replay);
@@ -33,6 +43,27 @@ export const App: React.FC = () => {
         </div>
     );
 };
+
+interface SpectatorListener {
+    onHeader: (header: Header) => void;
+    onTurn: (turn: Turn) => void;
+    onResults: (results: Results) => void;
+}
+
+function connectAsSpectator(url: string, listener: SpectatorListener) {
+    const webSocket = new WebSocket(url);
+    webSocket.onmessage = message => {
+        if (message.data.max_turns !== undefined) {
+            listener.onHeader(message.data);
+        } else if (message.data.results !== undefined) {
+            listener.onResults(message.data);
+        } else if (message.data.turn !== undefined) {
+            listener.onTurn(message.data);
+        } else {
+            throw Error(`unexpected message: ${message}`);
+        }
+    }
+}
 
 async function readExampleReplay(): Promise<Replay> {
     const response = await fetch('result1.json');

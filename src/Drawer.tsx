@@ -32,7 +32,7 @@ export const Drawer = (props: {
                 Load replay from file
             </label>
             <label>Address:</label>
-            <input ref={addressInputRef} type="text" value="localhost:63189" />
+            <input ref={addressInputRef} type="text" value="ws://localhost:63189" />
             <button onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
                 Connect
             </button>
