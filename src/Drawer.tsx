@@ -2,10 +2,11 @@ import {Replay} from "./reader";
 import React, {useRef} from "react";
 
 export const Drawer = (props: {
+    replay?: Replay,
+    connected: boolean,
+    currentTurn: number,
     onConnect: (url: string) => void,
     onReplayFileUploaded: (replay: Replay) => void,
-    replay?: Replay,
-    currentTurn: number,
     setCurrentTurn: (turn: number) => void,
 }) => {
     const addressInputRef = useRef<HTMLInputElement>(null);
@@ -33,7 +34,9 @@ export const Drawer = (props: {
             </label>
             <label>Address:</label>
             <input ref={addressInputRef} type="text" value="ws://localhost:63189" />
-            <button onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
+            <button 
+            disabled={props.connected}
+            onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
                 Connect
             </button>
             {props.replay &&
