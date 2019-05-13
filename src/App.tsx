@@ -53,6 +53,7 @@ interface SpectatorListener {
 function connectAsSpectator(url: string, listener: SpectatorListener) {
     const webSocket = new WebSocket(url);
     webSocket.onmessage = message => {
+        console.log("onmessage", message);
         if (message.data.max_turns !== undefined) {
             listener.onHeader(message.data);
         } else if (message.data.results !== undefined) {
@@ -60,7 +61,7 @@ function connectAsSpectator(url: string, listener: SpectatorListener) {
         } else if (message.data.turn !== undefined) {
             listener.onTurn(message.data);
         } else {
-            throw Error(`unexpected message: ${message}`);
+            throw Error(`unexpected message: ${message.data}`);
         }
     }
 }
