@@ -25,6 +25,7 @@ code {
 .Drawer {
     width: 20%;
     display: inline-block;
+    vertical-align: top;
 }
 
 /* Styles for upload file buttons, code adapted from here

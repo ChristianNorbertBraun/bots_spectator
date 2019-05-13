@@ -4,7 +4,7 @@ import {createMyGL, MyGL} from "./myGL";
 
 export const Board = (props: {
     replay: Replay,
-    currentTurn: number,
+    currentTurnIndex: number,
 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [myGL, setMyGL] = useState<MyGL>();
@@ -28,15 +28,17 @@ export const Board = (props: {
         if (myGL === undefined) return;
         console.log("Rendering frame");
         myGL.initFrame();
-        if (props.replay.turns.length <= props.currentTurn) {
+        if (props.replay.turns.length <= props.currentTurnIndex) {
             return;
         }
-        const turn = props.replay.turns[props.currentTurn];
+        const turn = props.replay.turns[props.currentTurnIndex];
         for (let y = 0; y < props.replay.map_height; ++y) {
             for (let x = 0; x < props.replay.map_width; ++x) {
                 const c = turn.map.charAt(x + y * props.replay.map_width);
                 if (c === 'A') {
                     myGL.drawSprite(0, x, y);
+                } else if (c === 'o') {
+                    myGL.drawSprite(63, x, y);
                 } else {
                     myGL.drawSprite(2, x, y);
                 }

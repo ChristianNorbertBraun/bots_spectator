@@ -4,12 +4,13 @@ import React, {useRef} from "react";
 export const Drawer = (props: {
     replay?: Replay,
     connected: boolean,
-    currentTurn: number,
+    currentTurnIndex: number,
     onConnect: (url: string) => void,
     onReplayFileUploaded: (replay: Replay) => void,
-    setCurrentTurn: (turn: number) => void,
+    setCurrentTurnIndex: (turn: number) => void,
 }) => {
     const addressInputRef = useRef<HTMLInputElement>(null);
+    const currentTurn = props.replay && props.replay.turns[props.currentTurnIndex]
 
     return (
         <div className="Drawer">
@@ -33,7 +34,10 @@ export const Drawer = (props: {
                 Load replay from file
             </label>
             <label>Address:</label>
-            <input ref={addressInputRef} type="text" value="ws://localhost:63189" />
+            <input disabled={props.connected}
+            ref={addressInputRef}
+            type="text"
+            value="ws://localhost:63189" />
             <button 
             disabled={props.connected}
             onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
@@ -42,18 +46,34 @@ export const Drawer = (props: {
             {props.replay &&
             <>
                 <div>Replay info:</div>
-                <div>Current turn: {props.currentTurn}</div>
+                <div>Current turn: {props.currentTurnIndex}</div>
                 <button
-                    disabled={props.currentTurn <= 0}
-                    onClick={() => props.setCurrentTurn(props.currentTurn - 1)}
+                    disabled={props.currentTurnIndex <= 0}
+                    onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex - 1)}
                 >-
                 </button>
                 <button
-                    disabled={props.currentTurn >= props.replay.max_turns - 1}
-                    onClick={() => props.setCurrentTurn(props.currentTurn + 1)}
+                    disabled={props.currentTurnIndex >= props.replay.max_turns - 1}
+                    onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex + 1)}
                 >+
                 </button>
                 <div>Max turns: {props.replay.max_turns}</div>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Life</th>
+                        <th>Move</th>
+                        <th>Score</th>
+                    </tr>
+                    {currentTurn && currentTurn.players.map( player =>
+                    <tr>
+                        <td>{player.name}</td>
+                        <td>{player.life}</td>
+                        <td>{player.moves}</td>
+                        <td>{player.score}</td>
+                    </tr>
+                    )}
+                </table>
             </>
             }
         </div>

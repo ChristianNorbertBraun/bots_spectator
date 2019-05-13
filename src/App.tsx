@@ -6,7 +6,7 @@ import { Board } from "./Board";
 
 export const App: React.FC = () => {
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
-    const [currentTurn, setCurrentTurn] = useState(0);
+    const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
     const [webSocket, setWebSocket] = useState<WebSocket | undefined>(undefined);
     // TODO Remove this hook eventually, it loads a dummy replay to ease testing
     useEffect(() => {
@@ -18,13 +18,13 @@ export const App: React.FC = () => {
             {replay &&
                 <Board
                     replay={replay}
-                    currentTurn={currentTurn}
+                    currentTurnIndex={currentTurnIndex}
                 />
             }
             <Drawer
                 replay={replay}
                 connected={webSocket !== undefined}
-                currentTurn={currentTurn}
+                currentTurnIndex={currentTurnIndex}
                 onConnect={url =>
                     setWebSocket(connectAsSpectator(url, {
                         onHeader: (header: Header) => {
@@ -33,7 +33,7 @@ export const App: React.FC = () => {
                         },
                         onTurn: (turn: Turn) => {
                             setReplay({ ...replay!!, turns: [...replay!!.turns, turn] });
-                            setCurrentTurn(turn.turn);
+                            setCurrentTurnIndex(turn.turn);
                             console.log("on Turn: ", turn);
                         },
                         onResults: (results: Results) => {
@@ -45,10 +45,10 @@ export const App: React.FC = () => {
                         }
                     }))}
                 onReplayFileUploaded={replay => {
-                    setCurrentTurn(0);
+                    setCurrentTurnIndex(0);
                     setReplay(replay);
                 }}
-                setCurrentTurn={setCurrentTurn}
+                setCurrentTurnIndex={setCurrentTurnIndex}
             />
         </div>
     );
