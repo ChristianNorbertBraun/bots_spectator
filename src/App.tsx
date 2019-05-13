@@ -3,6 +3,7 @@ import './App.css';
 import {Header, Replay, Results, Turn} from "./reader";
 import {Drawer} from "./Drawer";
 import {Board} from "./Board";
+import { truncateSync } from 'fs';
 
 export const App: React.FC = () => {
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
@@ -24,12 +25,16 @@ export const App: React.FC = () => {
                 replay={replay}
                 onConnect={url => connectAsSpectator(url, {
                     onHeader: (header: Header) => {
+                        setReplay({...header, turns: [], results: []});
                         console.log("on Header: ", header);
                     },
                     onTurn: (turn: Turn) => {
+                        setReplay({...replay!!, turns: [...replay!!.turns, turn]});
+                        setCurrentTurn(turn.turn);
                         console.log("on Turn: ", turn);
                     },
                     onResults: (results: Results) => {
+                        setReplay({...replay!!, ...results});
                         console.log("on Header: ", results);
                     },
                 })}
@@ -54,12 +59,13 @@ function connectAsSpectator(url: string, listener: SpectatorListener) {
     const webSocket = new WebSocket(url);
     webSocket.onmessage = message => {
         console.log("onmessage", message);
-        if (message.data.max_turns !== undefined) {
-            listener.onHeader(message.data);
-        } else if (message.data.results !== undefined) {
-            listener.onResults(message.data);
-        } else if (message.data.turn !== undefined) {
-            listener.onTurn(message.data);
+        const messageData = JSON.parse(message.data);
+        if (messageData.max_turns !== undefined) {
+            listener.onHeader(messageData);
+        } else if (messageData.results !== undefined) {
+            listener.onResults(messageData);
+        } else if (messageData.turn !== undefined) {
+            listener.onTurn(messageData);
         } else {
             throw Error(`unexpected message: ${message.data}`);
         }

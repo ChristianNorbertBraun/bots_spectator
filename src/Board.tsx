@@ -28,6 +28,9 @@ export const Board = (props: {
         if (myGL === undefined) return;
         console.log("Rendering frame");
         myGL.initFrame();
+        if (props.replay.turns.length <= props.currentTurn) {
+            return;
+        }
         const turn = props.replay.turns[props.currentTurn];
         for (let y = 0; y < props.replay.map_height; ++y) {
             for (let x = 0; x < props.replay.map_width; ++x) {
