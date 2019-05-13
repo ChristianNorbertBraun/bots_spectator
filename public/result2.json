@@ -1,0 +1,12 @@
+{"max_turns":1024,
+"map_width":7,
+"map_height":7,
+"view_radius":2,
+"obstacles":"~#",
+"flatland":".",
+"turns":[
+{"turn":1,"players":[
+{"addr":"127.0.0.1","name":"A","x":2,"y":2,"bearing":"v","life":1,"moves":1,"score":0}
+],"map":"o....A.....o............o.......o...o............"},
+{"place":1,"addr":"127.0.0.1","name":"A","score":16,"moves":897,"killer":"-"}
+]}

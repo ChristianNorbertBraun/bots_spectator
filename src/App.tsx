@@ -10,7 +10,7 @@ export const App: React.FC = () => {
     const [webSocket, setWebSocket] = useState<WebSocket | undefined>(undefined);
     // TODO Remove this hook eventually, it loads a dummy replay to ease testing
     useEffect(() => {
-        readExampleReplay().then(setReplay);
+        // readExampleReplay().then(setReplay);
     }, []);
 
     return (
@@ -32,6 +32,7 @@ export const App: React.FC = () => {
                             console.log("on Header: ", header);
                         },
                         onTurn: (turn: Turn) => {
+                            console.log("replay value ", replay);
                             setReplay({ ...replay!!, turns: [...replay!!.turns, turn] });
                             setCurrentTurnIndex(turn.turn);
                             console.log("on Turn: ", turn);
@@ -82,7 +83,7 @@ function connectAsSpectator(url: string, listener: SpectatorListener): WebSocket
 }
 
 async function readExampleReplay(): Promise<Replay> {
-    const response = await fetch('result1.json');
+    const response = await fetch('result2.json');
     const content = await response.text();
     return JSON.parse(content);
 }
