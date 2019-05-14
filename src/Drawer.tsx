@@ -49,13 +49,27 @@ export const Drawer = (props: {
                 <div>Current turn: {props.currentTurnIndex}</div>
                 <button
                     disabled={props.currentTurnIndex <= 0}
-                    onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex - 1)}
-                >-
+                    onClick={() => props.setCurrentTurnIndex(0)}
+                >
+                    |&lt;
                 </button>
                 <button
-                    disabled={props.currentTurnIndex >= props.replay.max_turns - 1}
+                    disabled={props.currentTurnIndex <= 0}
+                    onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex - 1)}
+                >
+                    &lt;
+                </button>
+                <button
+                    disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
                     onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex + 1)}
-                >+
+                >
+                    &gt;
+                </button>
+                <button
+                    disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
+                    onClick={() => props.replay && props.setCurrentTurnIndex(props.replay.turns.length - 1)}
+                >
+                    &gt;|
                 </button>
                 <div>Max turns: {props.replay.max_turns}</div>
                 <table>
