@@ -85,9 +85,3 @@ function connectAsSpectator(url: string, listener: SpectatorListener): WebSocket
 
     return webSocket;
 }
-
-async function readExampleReplay(): Promise<Replay> {
-    const response = await fetch('result2.json');
-    const content = await response.text();
-    return JSON.parse(content);
-}
