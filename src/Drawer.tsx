@@ -35,12 +35,12 @@ export const Drawer = (props: {
             </label>
             <label>Address:</label>
             <input disabled={props.connected}
-            ref={addressInputRef}
-            type="text"
-            value="ws://localhost:63189" />
-            <button 
-            disabled={props.connected}
-            onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
+                   ref={addressInputRef}
+                   type="text"
+                   value="ws://localhost:63189"/>
+            <button
+                disabled={props.connected}
+                onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
                 Connect
             </button>
             {props.replay &&
@@ -59,20 +59,24 @@ export const Drawer = (props: {
                 </button>
                 <div>Max turns: {props.replay.max_turns}</div>
                 <table>
+                    <thead>
                     <tr>
                         <th>Name</th>
                         <th>Life</th>
                         <th>Move</th>
                         <th>Score</th>
                     </tr>
-                    {currentTurn && currentTurn.players.map( player =>
-                    <tr>
-                        <td>{player.name}</td>
-                        <td>{player.life}</td>
-                        <td>{player.moves}</td>
-                        <td>{player.score}</td>
-                    </tr>
+                    </thead>
+                    <tbody>
+                    {currentTurn && currentTurn.players.map(player =>
+                        <tr key={player.name}>
+                            <td>{player.name}</td>
+                            <td>{player.life}</td>
+                            <td>{player.moves}</td>
+                            <td>{player.score}</td>
+                        </tr>
                     )}
+                    </tbody>
                 </table>
             </>
             }
