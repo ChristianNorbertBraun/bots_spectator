@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
-import { Header, Replay, Results, Turn } from "./reader";
-import { Drawer } from "./Drawer";
-import { Board } from "./Board";
+import {Header, Replay, Results, Turn} from "./reader";
+import {Drawer} from "./Drawer";
+import {Board} from "./Board";
 
 export const App: React.FC = () => {
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
@@ -16,10 +16,10 @@ export const App: React.FC = () => {
     return (
         <div className="App">
             {replay &&
-                <Board
-                    replay={replay}
-                    currentTurnIndex={currentTurnIndex}
-                />
+            <Board
+                replay={replay}
+                currentTurnIndex={currentTurnIndex}
+            />
             }
             <Drawer
                 replay={replay}
@@ -28,17 +28,21 @@ export const App: React.FC = () => {
                 onConnect={url =>
                     setWebSocket(connectAsSpectator(url, {
                         onHeader: (header: Header) => {
-                            setReplay({ ...header, turns: [], results: [] });
+                            setReplay({...header, turns: [], results: []});
                             console.log("on Header: ", header);
                         },
                         onTurn: (turn: Turn) => {
                             console.log("replay value ", replay);
-                            setReplay({ ...replay!!, turns: [...replay!!.turns, turn] });
-                            setCurrentTurnIndex(turn.turn);
+                            setReplay(replay => {
+                                return {...replay!!, turns: [...replay!!.turns, turn]}
+                            });
+                            setCurrentTurnIndex(turn.turn - 1);
                             console.log("on Turn: ", turn);
                         },
                         onResults: (results: Results) => {
-                            setReplay({ ...replay!!, ...results });
+                            setReplay(replay => {
+                                return {...replay!!, ...results};
+                            });
                             console.log("on Header: ", results);
                         },
                         onDisconnect: () => {
