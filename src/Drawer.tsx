@@ -1,4 +1,4 @@
-import {Replay} from "./reader";
+import {Replay, Turn} from "./reader";
 import React, {useEffect, useRef, useState} from "react";
 
 export const Drawer = (props: {
@@ -46,33 +46,17 @@ export const Drawer = (props: {
                 onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
                 Connect
             </button>
-            {props.replay && <TurnControls
+            {props.replay &&
+            <TurnControls
                 replay={props.replay}
                 currentTurnIndex={props.currentTurnIndex}
                 setCurrentTurnIndex={props.setCurrentTurnIndex}
             />
             }
-            {props.replay &&
-            <table>
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Life</th>
-                    <th>Move</th>
-                    <th>Score</th>
-                </tr>
-                </thead>
-                <tbody>
-                {currentTurn && currentTurn.players.map(player =>
-                    <tr key={player.name}>
-                        <td>{player.name}</td>
-                        <td>{player.life}</td>
-                        <td>{player.moves}</td>
-                        <td>{player.score}</td>
-                    </tr>
-                )}
-                </tbody>
-            </table>
+            {currentTurn &&
+            <PlayerTable
+                currentTurn={currentTurn}
+            />
             }
         </div>
     );
@@ -127,6 +111,31 @@ const TurnControls = (props: {
             &gt;|
         </button>
     </>;
+};
+
+const PlayerTable = (props: {
+    currentTurn: Turn,
+}) => {
+    return <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Life</th>
+            <th>Move</th>
+            <th>Score</th>
+        </tr>
+        </thead>
+        <tbody>
+        {props.currentTurn.players.map(player =>
+            <tr key={player.name}>
+                <td>{player.name}</td>
+                <td>{player.life}</td>
+                <td>{player.moves}</td>
+                <td>{player.score}</td>
+            </tr>
+        )}
+        </tbody>
+    </table>
 };
 
 async function readFileContents(file: File): Promise<string> {
