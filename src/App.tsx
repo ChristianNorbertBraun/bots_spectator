@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import './App.css';
 import {Header, Replay, Results, Turn} from "./reader";
 import {Drawer} from "./Drawer";
@@ -8,10 +8,6 @@ export const App: React.FC = () => {
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
     const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
     const [webSocket, setWebSocket] = useState<WebSocket | undefined>(undefined);
-    // TODO Remove this hook eventually, it loads a dummy replay to ease testing
-    useEffect(() => {
-        // readExampleReplay().then(setReplay);
-    }, []);
 
     return (
         <div className="App">
