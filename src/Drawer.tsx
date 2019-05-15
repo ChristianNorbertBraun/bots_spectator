@@ -10,11 +10,6 @@ export const Drawer = (props: {
     setCurrentTurnIndex: (turn: number) => void,
 }) => {
     const addressInputRef = useRef<HTMLInputElement>(null);
-    const [turnInputValue, setTurnInputValue] = useState<string>((props.currentTurnIndex + 1).toString(10));
-
-    useEffect(() => {
-        setTurnInputValue((props.currentTurnIndex + 1).toString(10));
-    }, [props.currentTurnIndex]);
 
     const currentTurn = props.replay && props.replay.turns[props.currentTurnIndex];
 
@@ -51,70 +46,87 @@ export const Drawer = (props: {
                 onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
                 Connect
             </button>
+            {props.replay && <TurnControls
+                replay={props.replay}
+                currentTurnIndex={props.currentTurnIndex}
+                setCurrentTurnIndex={props.setCurrentTurnIndex}
+            />
+            }
             {props.replay &&
-            <>
-                <div>Replay info:</div>
-                <label>Turn:</label>
-                <input
-                    type="number"
-                    min={0}
-                    pattern="[0–9]*"
-                    value={turnInputValue}
-                    onChange={e => {
-                        setTurnInputValue(e.target.value);
-                        const turn = parseInt(e.target.value, 10) - 1;
-                        if (isNaN(turn)) return;
-                        props.replay && props.setCurrentTurnIndex(Math.max(0, Math.min(parseInt(e.target.value, 10) - 1, props.replay.turns.length - 1)));
-                    }}
-                />
-                <button
-                    disabled={props.currentTurnIndex <= 0}
-                    onClick={() => props.setCurrentTurnIndex(0)}
-                >
-                    |&lt;
-                </button>
-                <button
-                    disabled={props.currentTurnIndex <= 0}
-                    onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex - 1)}
-                >
-                    &lt;
-                </button>
-                <button
-                    disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
-                    onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex + 1)}
-                >
-                    &gt;
-                </button>
-                <button
-                    disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
-                    onClick={() => props.replay && props.setCurrentTurnIndex(props.replay.turns.length - 1)}
-                >
-                    &gt;|
-                </button>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Life</th>
-                        <th>Move</th>
-                        <th>Score</th>
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Life</th>
+                    <th>Move</th>
+                    <th>Score</th>
+                </tr>
+                </thead>
+                <tbody>
+                {currentTurn && currentTurn.players.map(player =>
+                    <tr key={player.name}>
+                        <td>{player.name}</td>
+                        <td>{player.life}</td>
+                        <td>{player.moves}</td>
+                        <td>{player.score}</td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {currentTurn && currentTurn.players.map(player =>
-                        <tr key={player.name}>
-                            <td>{player.name}</td>
-                            <td>{player.life}</td>
-                            <td>{player.moves}</td>
-                            <td>{player.score}</td>
-                        </tr>
-                    )}
-                    </tbody>
-                </table>
-            </>
+                )}
+                </tbody>
+            </table>
             }
         </div>
     );
+};
+
+const TurnControls = (props: {
+    replay: Replay,
+    currentTurnIndex: number,
+    setCurrentTurnIndex: (turn: number) => void,
+}) => {
+    const [turnInputValue, setTurnInputValue] = useState<string>((props.currentTurnIndex + 1).toString(10));
+
+    useEffect(() => {
+        setTurnInputValue((props.currentTurnIndex + 1).toString(10));
+    }, [props.currentTurnIndex]);
+    return <>
+        <label>Turn:</label>
+        <input
+            type="number"
+            min={0}
+            pattern="[0–9]*"
+            value={turnInputValue}
+            onChange={e => {
+                setTurnInputValue(e.target.value);
+                const turn = parseInt(e.target.value, 10) - 1;
+                if (isNaN(turn)) return;
+                props.replay && props.setCurrentTurnIndex(Math.max(0, Math.min(parseInt(e.target.value, 10) - 1, props.replay.turns.length - 1)));
+            }}
+        />
+        <button
+            disabled={props.currentTurnIndex <= 0}
+            onClick={() => props.setCurrentTurnIndex(0)}
+        >
+            |&lt;
+        </button>
+        <button
+            disabled={props.currentTurnIndex <= 0}
+            onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex - 1)}
+        >
+            &lt;
+        </button>
+        <button
+            disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
+            onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex + 1)}
+        >
+            &gt;
+        </button>
+        <button
+            disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
+            onClick={() => props.replay && props.setCurrentTurnIndex(props.replay.turns.length - 1)}
+        >
+            &gt;|
+        </button>
+    </>;
 };
 
 async function readFileContents(file: File): Promise<string> {
