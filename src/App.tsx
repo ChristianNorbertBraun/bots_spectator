@@ -6,6 +6,7 @@ import {Board} from "./Board";
 
 export const App: React.FC = () => {
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
+    const [replayIndex, setReplayIndex] = useState(0);
     const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
     const [webSocket, setWebSocket] = useState<WebSocket | undefined>(undefined);
 
@@ -18,10 +19,13 @@ export const App: React.FC = () => {
             />
             }
             <Drawer
+                key={replayIndex}
                 replay={replay}
                 connected={webSocket !== undefined}
                 currentTurnIndex={currentTurnIndex}
-                onConnect={url =>
+                onConnect={url => {
+                    setReplay(undefined);
+                    setReplayIndex(index => index + 1);
                     setWebSocket(connectAsSpectator(url, {
                         onHeader: (header: Header) => {
                             setReplay({...header, turns: [], results: []});
@@ -43,10 +47,12 @@ export const App: React.FC = () => {
                         onDisconnect: () => {
                             setWebSocket(undefined);
                         }
-                    }))}
+                    }));
+                }}
                 onReplayFileUploaded={replay => {
                     setCurrentTurnIndex(0);
                     setReplay(replay);
+                    setReplayIndex(index => index + 1);
                 }}
                 setCurrentTurnIndex={setCurrentTurnIndex}
             />
