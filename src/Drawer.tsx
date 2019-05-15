@@ -91,7 +91,6 @@ export const Drawer = (props: {
                 >
                     &gt;|
                 </button>
-                <div>Max turns: {props.replay.max_turns}</div>
                 <table>
                     <thead>
                     <tr>
