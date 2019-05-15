@@ -1,4 +1,4 @@
-import {Replay, Turn} from "./reader";
+import {isFinished, Replay, Turn} from "./reader";
 import React, {Dispatch, SetStateAction, useCallback, useEffect, useRef, useState} from "react";
 
 export const Drawer = (props: {
@@ -68,7 +68,7 @@ const TurnControls = (props: {
     setCurrentTurnIndex: Dispatch<SetStateAction<number>>,
 }) => {
     const [turnInputValue, setTurnInputValue] = useState<string>((props.currentTurnIndex + 1).toString(10));
-    const [autoplay, setAutoplay] = useState<boolean>(false);
+    const [autoplay, setAutoplay] = useState<boolean>(!isFinished(props.replay));
     const timerHandle = useRef<number>();
 
     useEffect(() => {
@@ -111,14 +111,19 @@ const TurnControls = (props: {
     };
 
     useEffect(() => {
+        // console.log(`TurnControls#useEffect, autoplay: ${autoplay}, canNextMove():${canNextMove()}, currentTurnIndex:${props.currentTurnIndex}, props.replay.turns.length: ${props.replay.turns.length}, timerHandle.current: ${timerHandle.current}`);
+
         if (autoplay && !canNextMove()) {
             cancelTimer();
-            setAutoplay(false);
+            if (isFinished(props.replay)) {
+                setAutoplay(false);
+            }
         } else if (autoplay && timerHandle.current === undefined && canNextMove()) {
             startTimer();
         }
     }, [autoplay, startTimer, cancelTimer, nextMove, canNextMove, props.currentTurnIndex, props.replay]);
 
+    // console.log(`TurnControls#render, autoplay: ${autoplay}, currentTurnIndex:${props.currentTurnIndex}, timerHandle.current: ${timerHandle.current}`);
     return <>
         <label>Turn:</label>
         <input

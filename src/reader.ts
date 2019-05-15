@@ -39,3 +39,5 @@ export interface Placement {
 export interface Results {
     results: Placement[];
 }
+
+export const isFinished = (replay: Replay) => replay.results.length > 0;

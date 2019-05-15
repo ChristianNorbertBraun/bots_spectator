@@ -36,7 +36,6 @@ export const App: React.FC = () => {
                             setReplay(replay => {
                                 return {...replay!!, turns: [...replay!!.turns, turn]}
                             });
-                            setCurrentTurnIndex(turn.turn - 1);
                             console.log("on Turn: ", turn);
                         },
                         onResults: (results: Results) => {
