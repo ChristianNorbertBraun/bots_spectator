@@ -98,7 +98,7 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
     const programInfo = initBuffers(gl, program, atlas);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(.898, .800, .505, 1);
+    gl.clearColor(0x1b / 256, 0x1c / 256, 0x43 / 256, 1);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -151,7 +151,7 @@ function createTextureFrom(gl: WebGLRenderingContext, image: HTMLImageElement): 
 
 async function loadAtlas(): Promise<HTMLImageElement> {
     const a = new Image();
-    a.src = 'atlas.gif';
+    a.src = 'atlas.png';
     console.log("Loading atlas image...");
     return new Promise(resolve => {
         a.onload = () => {
