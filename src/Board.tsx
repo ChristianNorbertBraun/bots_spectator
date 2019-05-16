@@ -37,7 +37,8 @@ export const Board = (props: {
             for (let x = 0; x < props.replay.map_width; ++x) {
                 const c = turn.map.charAt(x + yy * props.replay.map_width);
                 if (c === 'A') {
-                    myGL.drawSprite(16, x, y);
+                    myGL.drawSprite((x + y) % 2, x, y);
+                    myGL.drawSprite(48, x, y);
                 } else if (c === 'o') {
                     myGL.drawSprite(6, x, y);
                 } else {
