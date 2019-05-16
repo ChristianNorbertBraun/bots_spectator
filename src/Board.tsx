@@ -53,8 +53,11 @@ export const Board = (props: {
         }
 
         for (const player of turn.players) {
+            if (player.life <= 0) {
+                continue;
+            } 
             const orientationOffset = orientations.indexOf(player.bearing);
-            const y = props.replay.map_height - player.y
+            const y = props.replay.map_height - player.y;
             myGL.drawSprite(48 + orientationOffset, player.x, y);
         }
     });

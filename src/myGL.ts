@@ -212,8 +212,8 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo) {
 
     // The rect in world space that shall be visible and centered in canvas
     const worldRect = {
-        x: 0,
-        y: 0,
+        x: 1,
+        y: 1,
         width: 32,
         height: 32,
     };
