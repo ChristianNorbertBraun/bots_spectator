@@ -1,6 +1,16 @@
+:root {
+    --palette-0: #DA4A79;
+    --palette-1: #F27EA6;
+    --palette-2: #7A7EBC;
+    --palette-3: #272863;
+    --palette-4: #1B1C43;
+}
+
 /* Make the board take up the whole height. Need to include all parent containers. */
 html, body, #root, .App, .Board {
     height: 100%;
+    background-color: var(--palette-4);
+    color: white;
 }
 
 body {
@@ -24,6 +34,8 @@ code {
 
 .Drawer {
     width: 20%;
+    height: 100%;
+    background-color: var(--palette-3);
     display: inline-block;
     vertical-align: top;
 }

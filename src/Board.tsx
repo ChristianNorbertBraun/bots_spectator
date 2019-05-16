@@ -37,11 +37,11 @@ export const Board = (props: {
             for (let x = 0; x < props.replay.map_width; ++x) {
                 const c = turn.map.charAt(x + yy * props.replay.map_width);
                 if (c === 'A') {
-                    myGL.drawSprite(0, x, y);
+                    myGL.drawSprite(16, x, y);
                 } else if (c === 'o') {
-                    myGL.drawSprite(63, x, y);
+                    myGL.drawSprite(6, x, y);
                 } else {
-                    myGL.drawSprite(2, x, y);
+                    myGL.drawSprite((x + y) % 2, x, y);
                 }
             }
         }
@@ -86,4 +86,13 @@ function getWindowSize() {
         width: isClient ? window.innerWidth : undefined,
         height: isClient ? window.innerHeight : undefined
     };
+}
+
+function randomInt(max: number): number {
+    return Math.floor(Math.random() * max);
+}
+
+// eslint-disable-next-line
+function randomIntBetween(min: number, max: number): number {
+    return min + randomInt(max - min);
 }
