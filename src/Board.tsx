@@ -2,6 +2,8 @@ import {Replay} from "./reader";
 import React, {useEffect, useRef, useState} from "react";
 import {createMyGL, MyGL} from "./myGL";
 
+const orientations = "^v><";
+
 export const Board = (props: {
     replay: Replay,
     currentTurnIndex: number,
@@ -36,15 +38,24 @@ export const Board = (props: {
             const y = props.replay.map_height - yy;
             for (let x = 0; x < props.replay.map_width; ++x) {
                 const c = turn.map.charAt(x + yy * props.replay.map_width);
-                if (c === 'A') {
-                    myGL.drawSprite((x + y) % 2, x, y);
-                    myGL.drawSprite(48, x, y);
-                } else if (c === 'o') {
+                if (c === '#') {
+                    myGL.drawSprite(2, x, y);
+                } else if (c === 'X') {
+                    myGL.drawSprite(3, x, y);
+                } else if (c === '~') {
+                    myGL.drawSprite(4, x, y);
+                }else if (c === 'o') {
                     myGL.drawSprite(6, x, y);
                 } else {
                     myGL.drawSprite((x + y) % 2, x, y);
                 }
             }
+        }
+
+        for (const player of turn.players) {
+            const orientationOffset = orientations.indexOf(player.bearing);
+            const y = props.replay.map_height - player.y
+            myGL.drawSprite(48 + orientationOffset, player.x, y);
         }
     });
 
