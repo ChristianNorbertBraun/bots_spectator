@@ -102,15 +102,6 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // wireInputs()
-    // createDust()
-    // createBlood()
-    // createMap()
-    // createEntities()
-    // W.onresize = resize
-    // resize()
-    // run()
-    // return Promise.resolve();
     return {
         texture,
         programInfo,
@@ -212,8 +203,8 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo) {
 
     // The rect in world space that shall be visible and centered in canvas
     const worldRect = {
-        x: 1,
-        y: 1,
+        x: 0,
+        y: 0,
         width: 32,
         height: 32,
     };
@@ -239,5 +230,6 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo) {
         -10,
         10,
     );
+
     gl.uniformMatrix4fv(pi.perspectiveLoc, false, perspective);
 }
