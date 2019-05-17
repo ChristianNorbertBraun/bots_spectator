@@ -4,14 +4,7 @@ import {Drawer} from "./Drawer";
 import {Board} from "./Board";
 import {createMuiTheme, CssBaseline, MuiThemeProvider} from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
-
-const paletteColor0 = "#DA4A79";
-// eslint-disable-next-line
-const paletteColor1 = "#F27EA6";
-// eslint-disable-next-line
-const paletteColor2 = "#7A7EBC";
-const paletteColor3 = "#272863";
-const paletteColor4 = "#1B1C43";
+import {paletteColor0, paletteColor3, paletteColor4} from "./palette";
 
 const theme = createMuiTheme({
     palette: {

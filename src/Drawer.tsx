@@ -18,6 +18,7 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import PauseIcon from "@material-ui/icons/Pause";
 import FastRewindIcon from "@material-ui/icons/FastRewind";
 import FastForwardIcon from "@material-ui/icons/FastForward";
+import {paletteColor3} from "./palette";
 
 const drawerWidth = 300;
 
@@ -26,8 +27,12 @@ const useStyles = makeStyles({
         flexShrink: 0,
         width: drawerWidth,
     },
-    drawerPaper: {
+    paper: {
         width: drawerWidth,
+        background: `${paletteColor3} !important`,
+        padding: 30,
+        borderTopLeftRadius: 30,
+        border: "none !important",
     },
 });
 
@@ -51,7 +56,7 @@ export const Drawer = (props: {
             anchor="right"
             className={styles.root}
             classes={{
-                paper: styles.drawerPaper,
+                paper: styles.paper,
             }}
         >
             <input
@@ -228,22 +233,22 @@ const TurnControls = (props: {
 const PlayerTable = (props: {
     currentTurn: Turn,
 }) => {
-    return <Table>
+    return <Table padding="none">
         <TableHead>
             <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Life</TableCell>
-                <TableCell>Move</TableCell>
-                <TableCell>Score</TableCell>
+                <TableCell align="center">Name</TableCell>
+                <TableCell align="center">Life</TableCell>
+                <TableCell align="center">Move</TableCell>
+                <TableCell align="center">Score</TableCell>
             </TableRow>
         </TableHead>
         <TableBody>
             {props.currentTurn.players.map(player =>
                 <TableRow key={player.name}>
-                    <TableCell>{player.name}</TableCell>
-                    <TableCell>{player.life}</TableCell>
-                    <TableCell>{player.moves}</TableCell>
-                    <TableCell>{player.score}</TableCell>
+                    <TableCell align="center">{player.name}</TableCell>
+                    <TableCell align="center">{player.life}</TableCell>
+                    <TableCell align="center">{player.moves}</TableCell>
+                    <TableCell align="center">{player.score}</TableCell>
                 </TableRow>
             )}
         </TableBody>
