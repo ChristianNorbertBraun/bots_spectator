@@ -84,7 +84,7 @@ export const Drawer = (props: {
             <label htmlFor="replayFileInput">
                 <Button
                     color="primary"
-                    variant="raised"
+                    variant="contained"
                     component="div"
                 >
                     Load file
@@ -100,7 +100,7 @@ export const Drawer = (props: {
             />
             <Button
                 color="primary"
-                variant="raised"
+                variant="contained"
                 disabled={props.connected}
                 onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
                 Connect
