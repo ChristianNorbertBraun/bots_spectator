@@ -4,6 +4,8 @@ import {
     Button,
     Drawer as MuiDrawer,
     IconButton,
+    InputAdornment,
+    MenuItem,
     Table,
     TableBody,
     TableCell,
@@ -16,11 +18,12 @@ import SkipNextIcon from "@material-ui/icons/SkipNext";
 import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import PauseIcon from "@material-ui/icons/Pause";
-import FastRewindIcon from "@material-ui/icons/FastRewind";
-import FastForwardIcon from "@material-ui/icons/FastForward";
 import {paletteColor3} from "./palette";
+import {ChevronLeft, ChevronRight} from "@material-ui/icons";
 
 const drawerWidth = 300;
+
+const delayOptions = [0, 0.1, 0.2, 0.4, 0.5, 1, 2, 4];
 
 const useStyles = makeStyles({
     root: {
@@ -91,7 +94,7 @@ export const Drawer = (props: {
                 disabled={props.connected}
                 inputRef={addressInputRef}
                 label="Host"
-                value="ws://localhost:63189"
+                defaultValue="ws://localhost:63189"
                 margin="normal"
                 variant="outlined"
             />
@@ -124,6 +127,7 @@ const TurnControls = (props: {
     setCurrentTurnIndex: Dispatch<SetStateAction<number>>,
 }) => {
     const [turnInputValue, setTurnInputValue] = useState<string>((props.currentTurnIndex + 1).toString(10));
+    const [delay, setDelay] = useState(0.5);
     const [autoplay, setAutoplay] = useState<boolean>(!isFinished(props.replay));
     const timerHandle = useRef<number>();
 
@@ -153,8 +157,8 @@ const TurnControls = (props: {
             console.log("Timer triggered, nextMove()");
             timerHandle.current = undefined;
             nextMove();
-        }, 500);
-    }, [cancelTimer, nextMove]);
+        }, delay * 1000);
+    }, [cancelTimer, nextMove, delay]);
 
     const startAutoplay = () => {
         cancelTimer();
@@ -181,22 +185,50 @@ const TurnControls = (props: {
 
     // console.log(`TurnControls#render, autoplay: ${autoplay}, currentTurnIndex:${props.currentTurnIndex}, timerHandle.current: ${timerHandle.current}`);
     return <>
-        <TextField
-            type="number"
-            inputProps={{
-                min: 0,
-            }}
-            label="Turn"
-            margin="normal"
-            variant="outlined"
-            value={turnInputValue}
-            onChange={e => {
-                setTurnInputValue(e.target.value);
-                const turn = parseInt(e.target.value, 10) - 1;
-                if (isNaN(turn)) return;
-                props.replay && props.setCurrentTurnIndex(Math.max(0, Math.min(parseInt(e.target.value, 10) - 1, props.replay.turns.length - 1)));
-            }}
-        />
+        <div>
+            <TextField
+                label="Turn"
+                margin="normal"
+                variant="outlined"
+                inputProps={{
+                    min: 0,
+                }}
+                style={{
+                    width: "4em",
+                }}
+                value={turnInputValue}
+                onChange={e => {
+                    setTurnInputValue(e.target.value);
+                    const turn = parseInt(e.target.value, 10) - 1;
+                    if (isNaN(turn)) return;
+                    props.replay && props.setCurrentTurnIndex(Math.max(0, Math.min(parseInt(e.target.value, 10) - 1, props.replay.turns.length - 1)));
+                }}
+            />
+            <TextField
+                label="Delay"
+                select
+                margin="normal"
+                variant="outlined"
+                style={{
+                    marginLeft: 8,
+                    width: "6em",
+                }}
+                value={delay}
+                onChange={e => {
+                    const d = parseFloat(e.target.value);
+                    setDelay(d);
+                }}
+                InputProps={{
+                    endAdornment: <InputAdornment position="end">s</InputAdornment>,
+                }}
+            >
+                {delayOptions.map(option => (
+                    <MenuItem key={option} value={option}>
+                        {"" + option}
+                    </MenuItem>
+                ))}
+            </TextField>
+        </div>
         <div>
             <IconButton
                 disabled={props.currentTurnIndex <= 0}
@@ -208,7 +240,7 @@ const TurnControls = (props: {
                 disabled={props.currentTurnIndex <= 0}
                 onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex - 1)}
             >
-                <FastRewindIcon/>
+                <ChevronLeft/>
             </IconButton>
             <IconButton
                 disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
@@ -219,7 +251,7 @@ const TurnControls = (props: {
                 disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
                 onClick={nextMove}
             >
-                <FastForwardIcon/>
+                <ChevronRight/>
             </IconButton>
             <IconButton
                 disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
