@@ -1,13 +1,21 @@
 import {Replay} from "./reader";
 import React, {useEffect, useRef, useState} from "react";
 import {createMyGL, MyGL} from "./myGL";
+import {makeStyles} from "@material-ui/styles";
 
 const orientations = "^v><";
+
+const useStyles = makeStyles({
+    root: {
+        flexGrow: 1,
+    },
+});
 
 export const Board = (props: {
     replay: Replay,
     currentTurnIndex: number,
 }) => {
+    const styles = useStyles();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [myGL, setMyGL] = useState<MyGL>();
     useWindowSize(); // This dependencies triggers a re-render when the window size changes
@@ -44,7 +52,7 @@ export const Board = (props: {
                     myGL.drawSprite(3, x, y);
                 } else if (c === '~') {
                     myGL.drawSprite(4, x, y);
-                }else if (c === 'o') {
+                } else if (c === 'o') {
                     myGL.drawSprite(6, x, y);
                 } else {
                     myGL.drawSprite((x + y) % 2, x, y);
@@ -55,7 +63,7 @@ export const Board = (props: {
         for (const player of turn.players) {
             if (player.life <= 0) {
                 continue;
-            } 
+            }
             const orientationOffset = orientations.indexOf(player.bearing);
             const y = props.replay.map_height - player.y;
             myGL.drawSprite(48 + orientationOffset, player.x, y);
@@ -63,7 +71,7 @@ export const Board = (props: {
     });
 
     return (
-        <div className="Board">
+        <div className={styles.root}>
             <canvas
                 ref={canvasRef}
                 style={{

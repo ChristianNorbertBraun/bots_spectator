@@ -1,5 +1,35 @@
 import {isFinished, Replay, Turn} from "./reader";
 import React, {Dispatch, SetStateAction, useCallback, useEffect, useRef, useState} from "react";
+import {
+    Button,
+    Drawer as MuiDrawer,
+    IconButton,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TextField
+} from "@material-ui/core";
+import {makeStyles} from "@material-ui/styles";
+import SkipNextIcon from "@material-ui/icons/SkipNext";
+import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
+import PlayArrowIcon from "@material-ui/icons/PlayArrow";
+import PauseIcon from "@material-ui/icons/Pause";
+import FastRewindIcon from "@material-ui/icons/FastRewind";
+import FastForwardIcon from "@material-ui/icons/FastForward";
+
+const drawerWidth = 300;
+
+const useStyles = makeStyles({
+    root: {
+        flexShrink: 0,
+        width: drawerWidth,
+    },
+    drawerPaper: {
+        width: drawerWidth,
+    },
+});
 
 export const Drawer = (props: {
     replay?: Replay,
@@ -13,12 +43,23 @@ export const Drawer = (props: {
 
     const currentTurn = props.replay && props.replay.turns[props.currentTurnIndex];
 
+    const styles = useStyles();
+
     return (
-        <div className="Drawer">
+        <MuiDrawer
+            variant="permanent"
+            anchor="right"
+            className={styles.root}
+            classes={{
+                paper: styles.drawerPaper,
+            }}
+        >
             <input
                 id="replayFileInput"
                 type="file"
-                className="inputfile"
+                style={{
+                    display: 'none',
+                }}
                 onChange={async e => {
                     e.preventDefault();
                     if (e.target.files != null && e.target.files.length > 0) {
@@ -32,20 +73,29 @@ export const Drawer = (props: {
                 }}
             />
             <label htmlFor="replayFileInput">
-                Load replay from file
+                <Button
+                    color="primary"
+                    variant="raised"
+                    component="div"
+                >
+                    Load file
+                </Button>
             </label>
-            <label>Address:</label>
-            <input
+            <TextField
                 disabled={props.connected}
-                ref={addressInputRef}
-                type="text"
+                inputRef={addressInputRef}
+                label="Host"
                 value="ws://localhost:63189"
+                margin="normal"
+                variant="outlined"
             />
-            <button
+            <Button
+                color="primary"
+                variant="raised"
                 disabled={props.connected}
                 onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
                 Connect
-            </button>
+            </Button>
             {props.replay &&
             <TurnControls
                 replay={props.replay}
@@ -58,7 +108,7 @@ export const Drawer = (props: {
                 currentTurn={currentTurn}
             />
             }
-        </div>
+        </MuiDrawer>
     );
 };
 
@@ -125,11 +175,14 @@ const TurnControls = (props: {
 
     // console.log(`TurnControls#render, autoplay: ${autoplay}, currentTurnIndex:${props.currentTurnIndex}, timerHandle.current: ${timerHandle.current}`);
     return <>
-        <label>Turn:</label>
-        <input
+        <TextField
             type="number"
-            min={0}
-            pattern="[0–9]*"
+            inputProps={{
+                min: 0,
+            }}
+            label="Turn"
+            margin="normal"
+            variant="outlined"
             value={turnInputValue}
             onChange={e => {
                 setTurnInputValue(e.target.value);
@@ -138,61 +191,63 @@ const TurnControls = (props: {
                 props.replay && props.setCurrentTurnIndex(Math.max(0, Math.min(parseInt(e.target.value, 10) - 1, props.replay.turns.length - 1)));
             }}
         />
-        <button
-            disabled={props.currentTurnIndex <= 0}
-            onClick={() => props.setCurrentTurnIndex(0)}
-        >
-            |&lt;
-        </button>
-        <button
-            disabled={props.currentTurnIndex <= 0}
-            onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex - 1)}
-        >
-            &lt;
-        </button>
-        <button
-            disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
-            onClick={() => autoplay ? stopAutoplay() : startAutoplay()}
-        > {autoplay ? <i className="material-icons">pause</i> : <i className="material-icons">play_arrow</i>}
-        </button>
-        <button
-            disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
-            onClick={nextMove}
-        >
-            &gt;
-        </button>
-        <button
-            disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
-            onClick={() => props.replay && props.setCurrentTurnIndex(props.replay.turns.length - 1)}
-        >
-            &gt;|
-        </button>
+        <div>
+            <IconButton
+                disabled={props.currentTurnIndex <= 0}
+                onClick={() => props.setCurrentTurnIndex(0)}
+            >
+                <SkipPreviousIcon/>
+            </IconButton>
+            <IconButton
+                disabled={props.currentTurnIndex <= 0}
+                onClick={() => props.setCurrentTurnIndex(props.currentTurnIndex - 1)}
+            >
+                <FastRewindIcon/>
+            </IconButton>
+            <IconButton
+                disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
+                onClick={() => autoplay ? stopAutoplay() : startAutoplay()}
+            > {autoplay ? <PauseIcon/> : <PlayArrowIcon/>}
+            </IconButton>
+            <IconButton
+                disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
+                onClick={nextMove}
+            >
+                <FastForwardIcon/>
+            </IconButton>
+            <IconButton
+                disabled={props.currentTurnIndex >= props.replay.turns.length - 1}
+                onClick={() => props.replay && props.setCurrentTurnIndex(props.replay.turns.length - 1)}
+            >
+                <SkipNextIcon/>
+            </IconButton>
+        </div>
     </>;
 };
 
 const PlayerTable = (props: {
     currentTurn: Turn,
 }) => {
-    return <table>
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Life</th>
-            <th>Move</th>
-            <th>Score</th>
-        </tr>
-        </thead>
-        <tbody>
-        {props.currentTurn.players.map(player =>
-            <tr key={player.name}>
-                <td>{player.name}</td>
-                <td>{player.life}</td>
-                <td>{player.moves}</td>
-                <td>{player.score}</td>
-            </tr>
-        )}
-        </tbody>
-    </table>
+    return <Table>
+        <TableHead>
+            <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Life</TableCell>
+                <TableCell>Move</TableCell>
+                <TableCell>Score</TableCell>
+            </TableRow>
+        </TableHead>
+        <TableBody>
+            {props.currentTurn.players.map(player =>
+                <TableRow key={player.name}>
+                    <TableCell>{player.name}</TableCell>
+                    <TableCell>{player.life}</TableCell>
+                    <TableCell>{player.moves}</TableCell>
+                    <TableCell>{player.score}</TableCell>
+                </TableRow>
+            )}
+        </TableBody>
+    </Table>
 };
 
 async function readFileContents(file: File): Promise<string> {
