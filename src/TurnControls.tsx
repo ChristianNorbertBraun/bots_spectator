@@ -1,4 +1,4 @@
-import {isFinished, Replay} from "./reader";
+import {isFinished, Replay} from "./replay";
 import React, {Dispatch, SetStateAction, useCallback, useEffect, useRef, useState} from "react";
 import {Button, InputAdornment, MenuItem, TextField} from "@material-ui/core";
 import {ChevronLeft, ChevronRight, Pause, PlayArrow, SkipNext, SkipPrevious} from "@material-ui/icons";

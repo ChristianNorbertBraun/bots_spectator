@@ -41,3 +41,7 @@ export interface Results {
 }
 
 export const isFinished = (replay: Replay) => replay.results.length > 0;
+
+export function parseReplay(content: string): Replay {
+    return JSON.parse(content);
+}

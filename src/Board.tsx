@@ -1,4 +1,4 @@
-import {Replay} from "./reader";
+import {Replay} from "./replay";
 import React, {useEffect, useRef, useState} from "react";
 import {createMyGL, MyGL} from "./myGL";
 import {makeStyles} from "@material-ui/styles";

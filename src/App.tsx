@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Header, Replay, Results, Turn} from "./reader";
+import React, {useEffect, useState} from 'react';
+import {Header, Replay, Results, Turn} from "./replay";
 import {Drawer} from "./Drawer";
 import {Board} from "./Board";
 import {createMuiTheme, CssBaseline, MuiThemeProvider} from "@material-ui/core";
@@ -39,12 +39,24 @@ const useStyles = makeStyles({
     },
 });
 
+async function tryToLoadReplayFromUrl(): Promise<Replay | undefined> {
+    const params = new URLSearchParams(document.location.search);
+    const replayUrl = params.get('replay_url');
+    if (!replayUrl) return undefined;
+    const response = await fetch(replayUrl);
+    return response.json();
+}
+
 export const App: React.FC = () => {
     const styles = useStyles();
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
     const [replayIndex, setReplayIndex] = useState(0);
     const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
     const [webSocket, setWebSocket] = useState<WebSocket | undefined>(undefined);
+
+    useEffect(() => {
+        tryToLoadReplayFromUrl().then(setReplay);
+    }, []);
 
     return (
         <MuiThemeProvider theme={theme}>

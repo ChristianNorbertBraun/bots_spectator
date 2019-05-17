@@ -1,4 +1,4 @@
-import {Replay, Turn} from "./reader";
+import {parseReplay, Replay, Turn} from "./replay";
 import React, {Dispatch, SetStateAction, useRef} from "react";
 import {
     Button,
@@ -66,7 +66,7 @@ export const Drawer = (props: {
                         const file: File = e.target.files[0];
                         e.target.value = ''; // Reset value, so user may upload the same filename again
                         const content = await readFileContents(file);
-                        const replay: Replay = JSON.parse(content);
+                        const replay = parseReplay(content);
                         props.onReplayFileUploaded(replay);
                     }
 
