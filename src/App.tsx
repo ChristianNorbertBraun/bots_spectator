@@ -32,6 +32,10 @@ const theme = createMuiTheme({
 const useStyles = makeStyles({
     root: {
         display: 'flex',
+        height: "100%",
+        width: "100%",
+        top: 0,
+        position: "fixed",
     },
 });
 
