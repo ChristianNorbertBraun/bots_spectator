@@ -43,7 +43,7 @@ export const Board = (props: {
         }
         const turn = props.replay.turns[props.currentTurnIndex];
         for (let yy = 0; yy < props.replay.map_height; ++yy) {
-            const y = props.replay.map_height - yy;
+            const y = props.replay.map_height - yy - 1;
             for (let x = 0; x < props.replay.map_width; ++x) {
                 const c = turn.map.charAt(x + yy * props.replay.map_width);
                 if (c === '#') {
