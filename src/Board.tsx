@@ -65,7 +65,7 @@ export const Board = (props: {
                 continue;
             }
             const orientationOffset = orientations.indexOf(player.bearing);
-            const y = props.replay.map_height - player.y;
+            const y = props.replay.map_height - player.y - 1;
             myGL.drawSprite(48 + orientationOffset, player.x, y);
         }
     });
