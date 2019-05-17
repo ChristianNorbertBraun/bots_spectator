@@ -32,6 +32,7 @@ const useStyles = makeStyles({
         background: `${paletteColor3} !important`,
         padding: 30,
         borderTopLeftRadius: 30,
+        borderBottomLeftRadius: 30,
         border: "none !important",
     },
 });
