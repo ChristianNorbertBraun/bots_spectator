@@ -1,4 +1,6 @@
 import {mat4} from "gl-matrix";
+import {paletteColor5} from "./palette";
+import chroma from "chroma-js";
 
 const vertexShaderSource = `
 attribute vec2 p;
@@ -98,7 +100,9 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
     const programInfo = initBuffers(gl, program, atlas);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(0x1b / 256, 0x1c / 256, 0x43 / 256, 1);
+
+    const bgColor = chroma(paletteColor5).gl();
+    gl.clearColor(bgColor[0], bgColor[1], bgColor[2], 1);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 

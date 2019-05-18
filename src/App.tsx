@@ -4,7 +4,7 @@ import {Drawer} from "./Drawer";
 import {Board} from "./Board";
 import {createMuiTheme, CssBaseline, MuiThemeProvider} from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
-import {paletteColor0, paletteColor3, paletteColor4} from "./palette";
+import {paletteColor0, paletteColor3, paletteColor5} from "./palette";
 
 const theme = createMuiTheme({
     palette: {
@@ -24,7 +24,7 @@ const theme = createMuiTheme({
         // error: will use the default color
         background: {
             // paper: '#fff',
-            default: paletteColor4,
+            default: paletteColor5,
         },
     },
 });
