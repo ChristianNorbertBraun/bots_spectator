@@ -5,7 +5,7 @@ TODO
 - [ ] Draw player sprites based on orientation
 - [ ] Enable view radius and discovered area (Show turn of activation)
 - [ ] Enable player trace
-
+- [ ] Support map sizes different from 32x32 (hard-coded in gl perspective currently)
 
 - [X] Create or import sprite atlas
 - [X] Evaluate vertical orientation
