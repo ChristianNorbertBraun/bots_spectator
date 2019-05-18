@@ -2,6 +2,7 @@ import {parseReplay, Replay, Turn} from "./replay";
 import React, {Dispatch, SetStateAction, useRef} from "react";
 import {
     Button,
+    Checkbox,
     Drawer as MuiDrawer,
     Table,
     TableBody,
@@ -35,9 +36,11 @@ export const Drawer = (props: {
     replay?: Replay,
     connected: boolean,
     currentTurnIndex: number,
+    setCurrentTurnIndex: Dispatch<SetStateAction<number>>,
+    tracedPlayers: number[],
+    setTracedPlayers: Dispatch<SetStateAction<number[]>>,
     onConnect: (url: string) => void,
     onReplayFileUploaded: (replay: Replay) => void,
-    setCurrentTurnIndex: Dispatch<SetStateAction<number>>,
 }) => {
     const addressInputRef = useRef<HTMLInputElement>(null);
 
@@ -106,6 +109,8 @@ export const Drawer = (props: {
             {currentTurn &&
             <PlayerTable
                 currentTurn={currentTurn}
+                tracedPlayers={props.tracedPlayers}
+                setTracedPlayers={props.setTracedPlayers}
             />
             }
         </MuiDrawer>
@@ -114,10 +119,13 @@ export const Drawer = (props: {
 
 const PlayerTable = (props: {
     currentTurn: Turn,
+    tracedPlayers: number[],
+    setTracedPlayers: Dispatch<SetStateAction<number[]>>,
 }) => {
     return <Table padding="none">
         <TableHead>
             <TableRow>
+                <TableCell align="center">Trace</TableCell>
                 <TableCell align="center">Name</TableCell>
                 <TableCell align="center">Life</TableCell>
                 <TableCell align="center">Move</TableCell>
@@ -125,8 +133,19 @@ const PlayerTable = (props: {
             </TableRow>
         </TableHead>
         <TableBody>
-            {props.currentTurn.players.map(player =>
+            {props.currentTurn.players.map((player, index) =>
                 <TableRow key={player.name}>
+                    <TableCell align="center">
+                        <Checkbox
+                            color="primary"
+                            style={{
+                                padding: 0,
+                            }}
+                            onChange={ev => {
+                                props.setTracedPlayers(arr => ev.target.checked ? [...arr, index] : arr.filter(e => e !== index));
+                            }}
+                        />
+                    </TableCell>
                     <TableCell align="center">{player.name}</TableCell>
                     <TableCell align="center">{player.life}</TableCell>
                     <TableCell align="center">{player.moves}</TableCell>

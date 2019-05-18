@@ -14,6 +14,7 @@ const useStyles = makeStyles({
 export const Board = (props: {
     replay: Replay,
     currentTurnIndex: number,
+    tracedPlayers: number[],
 }) => {
     const styles = useStyles();
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -57,6 +58,17 @@ export const Board = (props: {
                 } else {
                     myGL.drawSprite((x + y) % 2, x, y);
                 }
+            }
+        }
+        // Draw traces
+        for (let turnIndex=0;turnIndex < props.currentTurnIndex; ++turnIndex) {
+            const turn = props.replay.turns[turnIndex];
+            for (let i = 0; i < turn.players.length; ++i) {
+                if (props.tracedPlayers.indexOf(i) < 0) continue;
+                let player = turn.players[i];
+                const orientationOffset = orientations.indexOf(player.bearing);
+                const y = props.replay.map_height - player.y - 1;
+                myGL.drawSprite(48 + orientationOffset, player.x, y);
             }
         }
 

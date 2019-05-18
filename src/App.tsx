@@ -45,6 +45,7 @@ export const App: React.FC = () => {
     const [replayIndex, setReplayIndex] = useState(0);
     const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
     const [webSocket, setWebSocket] = useState<WebSocket | undefined>(undefined);
+    const [tracedPlayers, setTracedPlayers] = useState<number[]>([]);
 
     useEffect(() => {
         tryToLoadReplayFromUrl().then(setReplay);
@@ -58,6 +59,7 @@ export const App: React.FC = () => {
                 <Board
                     replay={replay}
                     currentTurnIndex={currentTurnIndex}
+                    tracedPlayers={tracedPlayers}
                 />
                 }
                 <Drawer
@@ -65,6 +67,9 @@ export const App: React.FC = () => {
                     replay={replay}
                     connected={webSocket !== undefined}
                     currentTurnIndex={currentTurnIndex}
+                    setCurrentTurnIndex={setCurrentTurnIndex}
+                    tracedPlayers={tracedPlayers}
+                    setTracedPlayers={setTracedPlayers}
                     onConnect={url => {
                         setReplay(undefined);
                         setReplayIndex(index => index + 1);
@@ -96,7 +101,6 @@ export const App: React.FC = () => {
                         setReplay(replay);
                         setReplayIndex(index => index + 1);
                     }}
-                    setCurrentTurnIndex={setCurrentTurnIndex}
                 />
             </div>
         </MuiThemeProvider>
