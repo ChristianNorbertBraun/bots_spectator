@@ -10,20 +10,12 @@ const theme = createMuiTheme({
     palette: {
         type: 'dark',
         primary: {
-            // light: will be calculated from palette.primary.main,
             main: paletteColor0,
-            // dark: will be calculated from palette.primary.main,
-            // contrastText: will be calculated to contrast with palette.primary.main
         },
         secondary: {
-            // light: '#0066ff',
             main: paletteColor3,
-            // dark: will be calculated from palette.secondary.main,
-            // contrastText: '#ffcc00',
         },
-        // error: will use the default color
         background: {
-            // paper: '#fff',
             default: paletteColor5,
         },
     },
