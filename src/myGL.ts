@@ -1,6 +1,7 @@
 import {mat4} from "gl-matrix";
 import {paletteColor5} from "./palette";
 import chroma from "chroma-js";
+import {Rect} from "./geom";
 
 const vertexShaderSource = `
 attribute vec2 p;
@@ -96,7 +97,7 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
 export interface MyGL {
     texture: WebGLTexture,
     programInfo: ProgramInfo,
-    initFrame: () => void,
+    initFrame: (worldRect: Rect) => void,
     drawSprite: (spriteId: number, x: number, y: number, tint?: Float32Array) => void,
 }
 
@@ -120,15 +121,15 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
     return {
         texture,
         programInfo,
-        initFrame: () => initFrame(gl, programInfo, texture),
+        initFrame: (worldRect: Rect) => initFrame(gl, programInfo, texture, worldRect),
         drawSprite: (spriteId: number, x: number, y: number, tint: Float32Array = defaultTint ) => {
             drawSprite(gl, spriteId, x, y, tint, programInfo);
         }
     };
 }
 
-function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture) {
-    resize(gl, pi);
+function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture, worldRect: Rect) {
+    resize(gl, pi,worldRect);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(pi.program);
     gl.bindBuffer(gl.ARRAY_BUFFER, pi.vertexBuffer);
@@ -210,20 +211,12 @@ function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: num
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
-function resize(gl: WebGLRenderingContext, pi: ProgramInfo) {
+function resize(gl: WebGLRenderingContext, pi: ProgramInfo, worldRect: Rect) {
     const canvasWidth = gl.canvas.clientWidth;
     const canvasHeight = gl.canvas.clientHeight;
     gl.canvas.width = canvasWidth;
     gl.canvas.height = canvasHeight;
     gl.viewport(0, 0, canvasWidth, canvasHeight);
-
-    // The rect in world space that shall be visible and centered in canvas
-    const worldRect = {
-        x: 0,
-        y: 0,
-        width: 32,
-        height: 32,
-    };
 
     const scaleX = worldRect.width / canvasWidth;
     const scaleY = worldRect.height / canvasHeight;

@@ -51,7 +51,10 @@ export const Board = (props: {
     useEffect(() => {
         if (myGL === undefined) return;
         console.log("Rendering frame");
-        myGL.initFrame();
+        const worldRect = {
+            x: 0, y: 0, width: props.replay.map_width, height: props.replay.map_height,
+        };
+        myGL.initFrame(worldRect);
         if (props.replay.turns.length <= props.currentTurnIndex) {
             return;
         }
