@@ -36,6 +36,8 @@ void main() {
 }
 `;
 
+const defaultTint = new Float32Array([1, 1, 1, 1]);
+
 interface ProgramInfo {
     program: WebGLProgram,
     vertexBuffer: WebGLBuffer,
@@ -95,7 +97,7 @@ export interface MyGL {
     texture: WebGLTexture,
     programInfo: ProgramInfo,
     initFrame: () => void,
-    drawSprite: (spriteId: number, x: number, y: number) => void,
+    drawSprite: (spriteId: number, x: number, y: number, tint?: Float32Array) => void,
 }
 
 export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
@@ -119,8 +121,8 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
         texture,
         programInfo,
         initFrame: () => initFrame(gl, programInfo, texture),
-        drawSprite: (spriteId: number, x: number, y: number) => {
-            drawSprite(gl, spriteId, x, y, 1, 1, programInfo);
+        drawSprite: (spriteId: number, x: number, y: number, tint: Float32Array = defaultTint ) => {
+            drawSprite(gl, spriteId, x, y, tint, programInfo);
         }
     };
 }
@@ -194,18 +196,14 @@ function calcUvCoords(atlas: HTMLImageElement): number[] {
     return coords;
 }
 
-function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, xm: number, ym: number, pi: ProgramInfo) {
+function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, tint: Float32Array, pi: ProgramInfo) {
     const spriteRad = 1;
     const transformation = new Float32Array([
-        spriteRad * (xm || 1), 0, 0, 0,
-        0, spriteRad * (ym || 1), 0, 0,
+        spriteRad, 0, 0, 0,
+        0, spriteRad, 0, 0,
         x * spriteRad, y * spriteRad, 1, 0,
         0, 0, 0, 1,
     ]);
-    const tint = new Float32Array([
-        1, 1.0, 1, 1
-    ])
-
     gl.vertexAttrib4fv(pi.tintAttribLoc, tint)
     gl.vertexAttribPointer(pi.uvBufferLoc, 2, gl.FLOAT, false, 0, sprite << 5);
     gl.uniformMatrix4fv(pi.transformationLoc, false, transformation);

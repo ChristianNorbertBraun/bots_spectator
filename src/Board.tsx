@@ -61,6 +61,7 @@ export const Board = (props: {
             }
         }
         // Draw traces
+        const traceTint = new Float32Array([1, 1, 1, 0.3]);
         for (let turnIndex=0;turnIndex < props.currentTurnIndex; ++turnIndex) {
             const turn = props.replay.turns[turnIndex];
             for (let i = 0; i < turn.players.length; ++i) {
@@ -68,7 +69,7 @@ export const Board = (props: {
                 let player = turn.players[i];
                 const orientationOffset = orientations.indexOf(player.bearing);
                 const y = props.replay.map_height - player.y - 1;
-                myGL.drawSprite(48 + orientationOffset, player.x, y);
+                myGL.drawSprite(48 + orientationOffset, player.x, y, traceTint);
             }
         }
 
