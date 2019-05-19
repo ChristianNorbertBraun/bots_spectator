@@ -11,6 +11,19 @@ const useStyles = makeStyles({
     },
 });
 
+type BitSet = boolean[];
+
+function setPlayerView(posx: number, posy: number, radius: number, mapWidth: number, mapHeight: number, set: BitSet) {
+    for (let x = posx - radius; x <= posx + radius; ++x) {
+        for (let y = posy - radius; y <= posy + radius; ++y) {
+            const xx = (x + mapWidth) % mapWidth;
+            const yy = (y + mapHeight) % mapHeight;
+            set[xx + yy * mapWidth] = true;
+        }
+    }
+    return set;
+}
+
 export const Board = (props: {
     replay: Replay,
     currentTurnIndex: number,
@@ -43,26 +56,40 @@ export const Board = (props: {
             return;
         }
         const turn = props.replay.turns[props.currentTurnIndex];
+
+        const exploredTint = new Float32Array([1.5, 1.5, 1.5, 1]);
+        const exploredFields = new Array(props.replay.map_width * props.replay.map_height).fill(false);
+        for (let turnIndex = 0; turnIndex <= props.currentTurnIndex; ++turnIndex) {
+            const turn = props.replay.turns[turnIndex];
+            for (let i = 0; i < turn.players.length; ++i) {
+                if (props.tracedPlayers.indexOf(i) < 0) continue;
+                let player = turn.players[i];
+                setPlayerView(player.x, player.y, props.replay.view_radius, props.replay.map_width, props.replay.map_height, exploredFields);
+            }
+        }
+
         for (let yy = 0; yy < props.replay.map_height; ++yy) {
             const y = props.replay.map_height - yy - 1;
             for (let x = 0; x < props.replay.map_width; ++x) {
-                const c = turn.map.charAt(x + yy * props.replay.map_width);
+                const index = x + yy * props.replay.map_width;
+                const c = turn.map.charAt(index);
+                const tint = exploredFields[index] ? exploredTint : undefined;
                 if (c === '#') {
-                    myGL.drawSprite(2, x, y);
+                    myGL.drawSprite(2, x, y, tint);
                 } else if (c === 'X') {
-                    myGL.drawSprite(3, x, y);
+                    myGL.drawSprite(3, x, y, tint);
                 } else if (c === '~') {
-                    myGL.drawSprite(4, x, y);
+                    myGL.drawSprite(4, x, y, tint);
                 } else if (c === 'o') {
-                    myGL.drawSprite(6, x, y);
+                    myGL.drawSprite(6, x, y, tint);
                 } else {
-                    myGL.drawSprite((x + y) % 2, x, y);
+                    myGL.drawSprite((x + y) % 2, x, y, tint);
                 }
             }
         }
         // Draw traces
         const traceTint = new Float32Array([1, 1, 1, 0.3]);
-        for (let turnIndex=0;turnIndex < props.currentTurnIndex; ++turnIndex) {
+        for (let turnIndex = 0; turnIndex < props.currentTurnIndex; ++turnIndex) {
             const turn = props.replay.turns[turnIndex];
             for (let i = 0; i < turn.players.length; ++i) {
                 if (props.tracedPlayers.indexOf(i) < 0) continue;
