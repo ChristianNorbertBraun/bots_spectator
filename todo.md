@@ -7,6 +7,7 @@ TODO
 - [ ] Enable player trace
 - [ ] Support map sizes different from 32x32 (hard-coded in gl perspective currently)
 - [ ] Show sensible error message when "Connect" fails
+- [ ] Add download button to save current replay as file (makes sense when spectated via websocket)
 
 - [X] Create or import sprite atlas
 - [X] Evaluate vertical orientation
