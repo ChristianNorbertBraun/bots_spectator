@@ -5,13 +5,16 @@ import chroma from "chroma-js";
 const vertexShaderSource = `
 attribute vec2 p;
 attribute vec2 uv;
+attribute vec4 tint;
 uniform mat4 perspective;
 uniform mat4 transformation;
 varying vec2 vuv;
+varying vec4 vtint;
 
 void main() {
   gl_Position = perspective * transformation * vec4(p, 1., 1.);
   vuv = uv;
+  vtint = tint;
 }
 `;
 
@@ -23,10 +26,13 @@ precision mediump float;
 #endif
 
 varying vec2 vuv;
+varying vec4 vtint;
 uniform sampler2D texture;
 
 void main() {
   gl_FragColor = texture2D(texture, vuv.st).rgba;
+  gl_FragColor.rgb *= vtint.rgb;
+  gl_FragColor *= vtint.a;
 }
 `;
 
@@ -36,6 +42,7 @@ interface ProgramInfo {
     uvBuffer: WebGLBuffer,
     vertexBufferLoc: number,
     uvBufferLoc: number,
+    tintAttribLoc: number,
     perspectiveLoc: WebGLUniformLocation,
     transformationLoc: WebGLUniformLocation,
     textureLoc: WebGLUniformLocation,
@@ -66,6 +73,7 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     gl.enableVertexAttribArray(vertexBufferLoc);
     const uvBufferLoc = gl.getAttribLocation(program, 'uv');
     gl.enableVertexAttribArray(uvBufferLoc);
+    const tintAttribLoc = gl.getAttribLocation(program, "tint");
 
     const perspectiveLoc = gl.getUniformLocation(program, 'perspective')!!;
     const transformationLoc = gl.getUniformLocation(program, 'transformation')!!;
@@ -76,6 +84,7 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
         uvBuffer,
         vertexBufferLoc,
         uvBufferLoc,
+        tintAttribLoc,
         perspectiveLoc,
         transformationLoc,
         textureLoc,
@@ -193,6 +202,11 @@ function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: num
         x * spriteRad, y * spriteRad, 1, 0,
         0, 0, 0, 1,
     ]);
+    const tint = new Float32Array([
+        1, 1.0, 1, 1
+    ])
+
+    gl.vertexAttrib4fv(pi.tintAttribLoc, tint)
     gl.vertexAttribPointer(pi.uvBufferLoc, 2, gl.FLOAT, false, 0, sprite << 5);
     gl.uniformMatrix4fv(pi.transformationLoc, false, transformation);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
