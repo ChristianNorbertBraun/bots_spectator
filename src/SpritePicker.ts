@@ -19,7 +19,7 @@ const pickBombSprite: SpritePicker = c => {
 var randomFlatlandIndex = 0;
 const pickFlatlandSprite: SpritePicker = c => {
     const monsterOrPlayerIndex = (orientationChars + monsterChars).indexOf(c)
-    if (c === '.' || monsterOrPlayerIndex != -1) {
+    if (c === '.' || monsterOrPlayerIndex !== -1) {
         return randomFlatlandIndex++ % 2;
     }
     return undefined;
@@ -33,7 +33,7 @@ const pickObsticleSprite: SpritePicker = c => {
     return 2 + index; 
 };
 
-const pickPlayerSpriteStart: SpritePicker = c => {
+export const pickPlayerSpriteStart: SpritePicker = c => {
     const index = playerChars.indexOf(c);
     if (index === -1) {
         return undefined;
