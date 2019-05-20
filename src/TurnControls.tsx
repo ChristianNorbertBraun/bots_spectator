@@ -4,7 +4,7 @@ import {Button, InputAdornment, MenuItem, TextField} from "@material-ui/core";
 import {ChevronLeft, ChevronRight, Pause, PlayArrow, SkipNext, SkipPrevious} from "@material-ui/icons";
 import {makeStyles} from "@material-ui/styles";
 
-const delayOptions = [0, 0.1, 0.2, 0.4, 0.5, 1, 2, 4];
+const delayOptions = [0, 0.1, 0.2, 0.5, 1, 4];
 
 const useStyles = makeStyles({
     buttonContainer: {
@@ -19,10 +19,11 @@ const useStyles = makeStyles({
 export const TurnControls = (props: {
     replay: Replay,
     currentTurnIndex: number,
+    delay: number,
+    setDelay: (d: number) => void,
     setCurrentTurnIndex: Dispatch<SetStateAction<number>>,
 }) => {
     const [turnInputValue, setTurnInputValue] = useState<string>((props.currentTurnIndex + 1).toString(10));
-    const [delay, setDelay] = useState(0.5);
     const [autoplay, setAutoplay] = useState<boolean>(!isFinished(props.replay));
     const timerHandle = useRef<number>();
     const styles = useStyles();
@@ -53,8 +54,8 @@ export const TurnControls = (props: {
             console.log("Timer triggered, nextMove()");
             timerHandle.current = undefined;
             nextMove();
-        }, delay * 1000);
-    }, [cancelTimer, nextMove, delay]);
+        }, props.delay * 1000);
+    }, [cancelTimer, nextMove, props.delay]);
 
     const startAutoplay = () => {
         cancelTimer();
@@ -109,10 +110,10 @@ export const TurnControls = (props: {
                     marginLeft: 8,
                     width: "6em",
                 }}
-                value={delay}
+                value={props.delay}
                 onChange={e => {
                     const d = parseFloat(e.target.value);
-                    setDelay(d);
+                    props.setDelay(d);
                 }}
                 InputProps={{
                     endAdornment: <InputAdornment position="end">s</InputAdornment>,

@@ -42,7 +42,6 @@ async function tryToLoadReplayFromUrl(): Promise<Replay | undefined> {
 export const App: React.FC = () => {
     const styles = useStyles();
     const [replay, setReplay] = useState<Replay | undefined>(undefined);
-    const [replayIndex, setReplayIndex] = useState(0);
     const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
     const [webSocket, setWebSocket] = useState<WebSocket | undefined>(undefined);
     const [tracedPlayers, setTracedPlayers] = useState<number[]>([]);
@@ -63,7 +62,6 @@ export const App: React.FC = () => {
                 />
                 }
                 <Drawer
-                    key={replayIndex}
                     replay={replay}
                     connected={webSocket !== undefined}
                     currentTurnIndex={currentTurnIndex}
@@ -71,8 +69,8 @@ export const App: React.FC = () => {
                     tracedPlayers={tracedPlayers}
                     setTracedPlayers={setTracedPlayers}
                     onConnect={url => {
+                        setCurrentTurnIndex(0);
                         setReplay(undefined);
-                        setReplayIndex(index => index + 1);
                         setWebSocket(connectAsSpectator(url, {
                             onHeader: (header: Header) => {
                                 setReplay({...header, turns: [], results: []});
@@ -99,7 +97,6 @@ export const App: React.FC = () => {
                     onReplayFileUploaded={replay => {
                         setCurrentTurnIndex(0);
                         setReplay(replay);
-                        setReplayIndex(index => index + 1);
                     }}
                 />
             </div>

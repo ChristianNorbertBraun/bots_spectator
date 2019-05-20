@@ -1,5 +1,5 @@
 import {parseReplay, Replay, Turn} from "./replay";
-import React, {Dispatch, SetStateAction, useRef} from "react";
+import React, {useState, Dispatch, SetStateAction, useRef} from "react";
 import {
     Button,
     Checkbox,
@@ -45,6 +45,7 @@ export const Drawer = (props: {
     const addressInputRef = useRef<HTMLInputElement>(null);
 
     const currentTurn = props.replay && props.replay.turns[props.currentTurnIndex];
+    const [delay, setDelay] = useState(0.1);
 
     const styles = useStyles();
 
@@ -103,6 +104,8 @@ export const Drawer = (props: {
             <TurnControls
                 replay={props.replay}
                 currentTurnIndex={props.currentTurnIndex}
+                delay={delay}
+                setDelay={setDelay}
                 setCurrentTurnIndex={props.setCurrentTurnIndex}
             />
             }
