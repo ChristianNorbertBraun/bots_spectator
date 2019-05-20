@@ -1,14 +1,16 @@
 TODO
 ====
 
-- [ ] UI theming
 - [ ] Draw player sprites based on orientation
 - [ ] Enable view radius and discovered area (Show turn of activation)
 - [ ] Enable player trace
-- [ ] Support map sizes different from 32x32 (hard-coded in gl perspective currently)
 - [ ] Show sensible error message when "Connect" fails
 - [ ] Add download button to save current replay as file (makes sense when spectated via websocket)
+- [ ] Adjust turn delay values
+- [ ] Bug: reset turn index on subsequent spectations
 
+- [X] Support map sizes different from 32x32 (hard-coded in gl perspective currently)
+- [X] UI theming
 - [X] Create or import sprite atlas
 - [X] Evaluate vertical orientation
 - [X] Show player table
