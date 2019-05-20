@@ -2,7 +2,7 @@
   "name": "bots_spectator",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://bots.cdietze.de",
+  "homepage": "http://bots.cdietze.de",
   "dependencies": {
     "@material-ui/core": "^3.9.3",
     "@material-ui/icons": "^3.0.2",
@@ -13,6 +13,7 @@
     "@types/react": "16.8.17",
     "@types/react-dom": "16.8.4",
     "chroma-js": "^2.0.3",
+    "gh-pages": "^2.0.1",
     "gl-matrix": "^3.0.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
@@ -23,7 +24,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
