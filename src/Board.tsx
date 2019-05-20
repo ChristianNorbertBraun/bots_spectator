@@ -79,7 +79,7 @@ export const Board = (props: {
                 const c = turn.map.charAt(index);
                 const tint = exploredFields[index] ? exploredTint : undefined;
 
-                const spriteIndex = defaultWorldSpritePicker(c);
+                const spriteIndex = defaultWorldSpritePicker(c, x, y);
                 myGL.drawSprite(spriteIndex!!, x, y, tint);
             }
         }
@@ -93,7 +93,7 @@ export const Board = (props: {
                 let player = turn.players[i];
                 const orientationOffset = orientations.indexOf(player.bearing);
                 const y = props.replay.map_height - player.y - 1;
-                const playerSpriteStartIndex = pickPlayerSpriteStart(player.name);
+                const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y);
                 myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y, traceTint);
             }
         }
@@ -102,7 +102,7 @@ export const Board = (props: {
             if (player.life <= 0) {
                 continue;
             }
-            const playerSpriteStartIndex = pickPlayerSpriteStart(player.name);
+            const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y);
             const orientationOffset = orientations.indexOf(player.bearing);
             const y = props.replay.map_height - player.y - 1;
             myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y);

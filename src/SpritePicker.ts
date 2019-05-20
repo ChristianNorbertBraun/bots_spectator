@@ -1,4 +1,4 @@
-export type SpritePicker = (c: string) => number | undefined;
+export type SpritePicker = (c: string, x: number, y: number) => number | undefined;
 
 const bombChars = "987654321";
 const playerChars = "ABCDEFGHIJKLMNOP";
@@ -8,7 +8,7 @@ const monsterChars = "e";
 const obsticleChars = "#~X";
 const portalChars = "o&";
 
-const pickBombSprite: SpritePicker = c => {
+const pickBombSprite: SpritePicker = (c, x, y) => {
     const index = bombChars.indexOf(c);
     if (index === -1) {
         return undefined;
@@ -16,16 +16,15 @@ const pickBombSprite: SpritePicker = c => {
     return 8 + index;
 };
 
-var randomFlatlandIndex = 0;
-const pickFlatlandSprite: SpritePicker = c => {
+const pickFlatlandSprite: SpritePicker = (c, x, y) => {
     const monsterOrPlayerIndex = (orientationChars + monsterChars).indexOf(c)
     if (c === '.' || monsterOrPlayerIndex !== -1) {
-        return randomFlatlandIndex++ % 2;
+        return (x + y) % 2;
     }
     return undefined;
 };
 
-const pickObsticleSprite: SpritePicker = c => {
+const pickObsticleSprite: SpritePicker = (c, x, y) => {
     const index = obsticleChars.indexOf(c);
     if (index === -1) {
         return undefined;
@@ -33,7 +32,7 @@ const pickObsticleSprite: SpritePicker = c => {
     return 2 + index; 
 };
 
-export const pickPlayerSpriteStart: SpritePicker = c => {
+export const pickPlayerSpriteStart: SpritePicker = (c, x, y) => {
     const index = playerChars.indexOf(c);
     if (index === -1) {
         return undefined;
@@ -41,21 +40,21 @@ export const pickPlayerSpriteStart: SpritePicker = c => {
     return 48 + index * 4;
 };
 
-const pickPowerUpSprite: SpritePicker = c => {
+const pickPowerUpSprite: SpritePicker = (c, x, y) => {
     if (c === '+') {
         return 113;
     }
     return undefined;
 };
 
-const pickMonsterSprite: SpritePicker = c => {
+const pickMonsterSprite: SpritePicker = (c, x, y) => {
     if (c === 'e') {
         return 112;
     }
     return undefined;
 }
 
-const pickLetterSprite: SpritePicker = c => {
+const pickLetterSprite: SpritePicker = (c, x, y) => {
     const index = letterChars.indexOf(c);
     if(index === -1) {
         return undefined;
@@ -63,21 +62,21 @@ const pickLetterSprite: SpritePicker = c => {
     return 17 + index;
 }
 
-const pickPortalSprite: SpritePicker = c => {
+const pickPortalSprite: SpritePicker = (c, x, y) => {
     if (portalChars.indexOf(c) === -1) {
         return undefined;
     }
     return 6;
 }
 
-const pickGemSprite: SpritePicker = c => {
+const pickGemSprite: SpritePicker = (c, x, y) => {
     if (c === '@') {
         return 5;
     }
     return undefined;
 };
 
-const pickSnakeTailSprite: SpritePicker = c => {
+const pickSnakeTailSprite: SpritePicker = (c, x, y) => {
     if (c === '*') {
         return 7;
     }
@@ -85,19 +84,19 @@ const pickSnakeTailSprite: SpritePicker = c => {
 };
 
 
-export const defaultWorldSpritePicker: SpritePicker = c => {
-    return pickFlatlandSprite(c) || 
-        pickObsticleSprite(c) || 
-        pickPortalSprite(c) || 
-        pickLetterSprite(c) || 
-        pickGemSprite(c) || 
-        pickSnakeTailSprite (c)
+export const defaultWorldSpritePicker: SpritePicker = (c, x, y) => {
+    return pickFlatlandSprite(c, x, y) || 
+        pickObsticleSprite(c, x, y) || 
+        pickPortalSprite(c, x, y) || 
+        pickLetterSprite(c, x, y) || 
+        pickGemSprite(c, x, y) || 
+        pickSnakeTailSprite (c, x, y)
 };
 
-export const hordWorldSpritePicker: SpritePicker = c => {
-    return pickMonsterSprite(c) || pickPowerUpSprite(c) || defaultWorldSpritePicker(c);
+export const hordWorldSpritePicker: SpritePicker = (c, x, y) => {
+    return pickMonsterSprite(c, x, y) || pickPowerUpSprite(c, x, y) || defaultWorldSpritePicker(c, x, y);
 }
 
-export const bombWorldSpritePicker: SpritePicker = c => {
-    return pickBombSprite(c) || pickPowerUpSprite(c) || defaultWorldSpritePicker(c);
+export const bombWorldSpritePicker: SpritePicker = (c, x, y) => {
+    return pickBombSprite(c, x, y) || pickPowerUpSprite(c, x, y) || defaultWorldSpritePicker(c, x, y);
 }
