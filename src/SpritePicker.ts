@@ -5,7 +5,7 @@ const playerChars = "ABCDEFGHIJKLMNOP";
 const orientationChars = "^><v";
 const letterChars = "abcdefghijklmnopqrstuuwxyz";
 const monsterChars = "e";
-const obsticleChars = "#~X";
+const obsticleChars = "#X~";
 const portalChars = "o&";
 
 const pickBombSprite: SpritePicker = (c, x, y) => {
