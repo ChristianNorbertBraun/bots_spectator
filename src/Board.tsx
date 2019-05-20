@@ -1,6 +1,7 @@
 import {Replay} from "./replay";
 import React, {useEffect, useRef, useState} from "react";
 import {createMyGL, MyGL} from "./myGL";
+import {defaultWorldSpritePicker, pickPlayerSpriteStart} from "./SpritePicker"
 import {makeStyles} from "@material-ui/styles";
 
 const orientations = "^v><";
@@ -77,19 +78,12 @@ export const Board = (props: {
                 const index = x + yy * props.replay.map_width;
                 const c = turn.map.charAt(index);
                 const tint = exploredFields[index] ? exploredTint : undefined;
-                if (c === '#') {
-                    myGL.drawSprite(2, x, y, tint);
-                } else if (c === 'X') {
-                    myGL.drawSprite(3, x, y, tint);
-                } else if (c === '~') {
-                    myGL.drawSprite(4, x, y, tint);
-                } else if (c === 'o') {
-                    myGL.drawSprite(6, x, y, tint);
-                } else {
-                    myGL.drawSprite((x + y) % 2, x, y, tint);
-                }
+
+                const spriteIndex = defaultWorldSpritePicker(c);
+                myGL.drawSprite(spriteIndex!!, x, y, tint);
             }
         }
+
         // Draw traces
         const traceTint = new Float32Array([1, 1, 1, 0.3]);
         for (let turnIndex = 0; turnIndex < props.currentTurnIndex; ++turnIndex) {
@@ -99,7 +93,8 @@ export const Board = (props: {
                 let player = turn.players[i];
                 const orientationOffset = orientations.indexOf(player.bearing);
                 const y = props.replay.map_height - player.y - 1;
-                myGL.drawSprite(48 + orientationOffset, player.x, y, traceTint);
+                const playerSpriteStartIndex = pickPlayerSpriteStart(player.name);
+                myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y, traceTint);
             }
         }
 
@@ -107,9 +102,10 @@ export const Board = (props: {
             if (player.life <= 0) {
                 continue;
             }
+            const playerSpriteStartIndex = pickPlayerSpriteStart(player.name);
             const orientationOffset = orientations.indexOf(player.bearing);
             const y = props.replay.map_height - player.y - 1;
-            myGL.drawSprite(48 + orientationOffset, player.x, y);
+            myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y);
         }
     });
 
