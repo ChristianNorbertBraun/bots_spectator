@@ -51,7 +51,6 @@ export const TurnControls = (props: {
     const startTimer = useCallback(() => {
         cancelTimer();
         timerHandle.current = window.setTimeout(() => {
-            console.log("Timer triggered, nextMove()");
             timerHandle.current = undefined;
             nextMove();
         }, props.delay * 1000);

@@ -85,20 +85,16 @@ export const App: React.FC = () => {
                         const websocketResult = await createSpectatorWebsocket(url, {
                             onHeader: (header: Header) => {
                                 setReplay({...header, turns: [], results: []});
-                                console.log("on Header: ", header);
                             },
                             onTurn: (turn: Turn) => {
-                                console.log("replay value ", replay);
                                 setReplay(replay => {
                                     return {...replay!!, turns: [...replay!!.turns, turn]}
                                 });
-                                console.log("on Turn: ", turn);
                             },
                             onResults: (results: Results) => {
                                 setReplay(replay => {
                                     return {...replay!!, ...results};
                                 });
-                                console.log("on Header: ", results);
                             },
                             onDisconnect: () => {
                                 setWebSocket(undefined);
@@ -157,7 +153,6 @@ async function createSpectatorWebsocket(url: string, listener: SpectatorListener
             });
         };
         webSocket.onmessage = message => {
-            console.log("onmessage", message);
             const messageData = JSON.parse(message.data);
             if (messageData.max_turns !== undefined) {
                 listener.onHeader(messageData);
