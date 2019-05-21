@@ -8,6 +8,9 @@ const monsterChars = "e";
 const obsticleChars = "#X~";
 const portalChars = "o&";
 
+const chain = (ps: SpritePicker[]): SpritePicker => (c, x, y) =>
+    ps.reduce<number | undefined>((prev, current) => prev || current(c, x, y), undefined);
+
 const pickBombSprite: SpritePicker = (c, x, y) => {
     const index = bombChars.indexOf(c);
     if (index === -1) {
@@ -69,12 +72,7 @@ const pickPortalSprite: SpritePicker = (c, x, y) => {
     return 6;
 }
 
-const pickGemSprite: SpritePicker = (c, x, y) => {
-    if (c === '@') {
-        return 5;
-    }
-    return undefined;
-};
+const pickGemSprite: SpritePicker = c => c === '@' ? 5 : undefined;
 
 const pickSnakeTailSprite: SpritePicker = (c, x, y) => {
     if (c === '*') {
@@ -83,14 +81,12 @@ const pickSnakeTailSprite: SpritePicker = (c, x, y) => {
     return undefined;
 };
 
-
-export const defaultWorldSpritePicker: SpritePicker = (c, x, y) => {
-    return pickFlatlandSprite(c, x, y) || 
-        pickObsticleSprite(c, x, y) || 
-        pickPortalSprite(c, x, y) || 
-        pickGemSprite(c, x, y) || 
-        pickSnakeTailSprite (c, x, y)
-};
+export const defaultWorldSpritePicker: SpritePicker = chain([
+    pickFlatlandSprite,
+    pickObsticleSprite,
+    pickPortalSprite,
+    pickGemSprite,
+    pickSnakeTailSprite]);
 
 export const hordeWorldSpritePicker: SpritePicker = (c, x, y) => {
     return pickPowerUpSprite(c, x, y) || defaultWorldSpritePicker(c, x, y);
