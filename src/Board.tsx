@@ -1,7 +1,7 @@
 import {Replay} from "./replay";
 import React, {useEffect, useRef, useState} from "react";
 import {createMyGL, MyGL} from "./myGL";
-import {defaultWorldSpritePicker, pickPlayerSpriteStart} from "./SpritePicker"
+import {defaultWorldSpritePicker, pickPlayerSpriteStart, pickMonsterSprite, hordeWorldSpritePicker} from "./SpritePicker"
 import {makeStyles} from "@material-ui/styles";
 
 const orientations = "^v><";
@@ -79,8 +79,13 @@ export const Board = (props: {
                 const c = turn.map.charAt(index);
                 const tint = exploredFields[index] ? exploredTint : undefined;
 
-                const spriteIndex = defaultWorldSpritePicker(c, x, y);
+                const spriteIndex = hordeWorldSpritePicker(c, x, y);
                 myGL.drawSprite(spriteIndex!!, x, y, tint);
+
+                const monsterSpriteIndex = pickMonsterSprite(c, x, y)
+                if (monsterSpriteIndex !== undefined) {
+                    myGL.drawSprite(monsterSpriteIndex!!, x, y, tint);
+                }
             }
         }
 

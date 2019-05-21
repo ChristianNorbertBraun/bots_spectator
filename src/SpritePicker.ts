@@ -47,7 +47,7 @@ const pickPowerUpSprite: SpritePicker = (c, x, y) => {
     return undefined;
 };
 
-const pickMonsterSprite: SpritePicker = (c, x, y) => {
+export const pickMonsterSprite: SpritePicker = (c, x, y) => {
     if (c === 'e') {
         return 112;
     }
@@ -88,13 +88,12 @@ export const defaultWorldSpritePicker: SpritePicker = (c, x, y) => {
     return pickFlatlandSprite(c, x, y) || 
         pickObsticleSprite(c, x, y) || 
         pickPortalSprite(c, x, y) || 
-        pickLetterSprite(c, x, y) || 
         pickGemSprite(c, x, y) || 
         pickSnakeTailSprite (c, x, y)
 };
 
-export const hordWorldSpritePicker: SpritePicker = (c, x, y) => {
-    return pickMonsterSprite(c, x, y) || pickPowerUpSprite(c, x, y) || defaultWorldSpritePicker(c, x, y);
+export const hordeWorldSpritePicker: SpritePicker = (c, x, y) => {
+    return pickPowerUpSprite(c, x, y) || defaultWorldSpritePicker(c, x, y);
 }
 
 export const bombWorldSpritePicker: SpritePicker = (c, x, y) => {
