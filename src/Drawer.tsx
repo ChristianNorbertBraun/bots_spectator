@@ -1,5 +1,5 @@
 import {parseReplay, Replay, Turn} from "./replay";
-import React, {useState, Dispatch, SetStateAction, useRef} from "react";
+import React, {Dispatch, SetStateAction, useRef, useState} from "react";
 import {
     Button,
     Checkbox,
@@ -9,7 +9,8 @@ import {
     TableCell,
     TableHead,
     TableRow,
-    TextField
+    TextField,
+    Typography
 } from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
 import {paletteColor3} from "./palette";
@@ -34,12 +35,13 @@ const useStyles = makeStyles({
 
 export const Drawer = (props: {
     replay?: Replay,
-    connected: boolean,
+    webSocket?: WebSocket,
     currentTurnIndex: number,
     setCurrentTurnIndex: Dispatch<SetStateAction<number>>,
     tracedPlayers: number[],
     setTracedPlayers: Dispatch<SetStateAction<number[]>>,
-    onConnect: (url: string) => void,
+    onConnectWebsocket: (url: string) => Promise<void>,
+    onCloseWebsocket: () => void,
     onReplayFileUploaded: (replay: Replay) => void,
 }) => {
     const addressInputRef = useRef<HTMLInputElement>(null);
@@ -85,21 +87,39 @@ export const Drawer = (props: {
                     Load file
                 </Button>
             </label>
-            <TextField
-                disabled={props.connected}
-                inputRef={addressInputRef}
-                label="Host"
-                defaultValue="ws://localhost:63189"
-                margin="normal"
-                variant="outlined"
-            />
-            <Button
-                color="primary"
-                variant="contained"
-                disabled={props.connected}
-                onClick={() => addressInputRef.current && props.onConnect(addressInputRef.current.value)}>
-                Connect
-            </Button>
+            {props.webSocket
+                ? <>
+                    <Typography variant="body1" style={{
+                        marginTop: 16,
+                    }}>
+                        Connected to {props.webSocket.url}
+                    </Typography>
+                    <Button
+                        color="secondary"
+                        variant="contained"
+                        onClick={props.onCloseWebsocket}
+                        style={{
+                            marginBottom: 8,
+                        }}
+                    >
+                        Disconnect
+                    </Button>
+                </>
+                : <>
+                    <TextField
+                        inputRef={addressInputRef}
+                        label="Host"
+                        defaultValue="ws://localhost:63189"
+                        margin="normal"
+                        variant="outlined"
+                    />
+                    <Button
+                        color="primary"
+                        variant="contained"
+                        onClick={() => addressInputRef.current && props.onConnectWebsocket(addressInputRef.current.value)}>
+                        Connect
+                    </Button>
+                </>}
             {props.replay &&
             <TurnControls
                 replay={props.replay}

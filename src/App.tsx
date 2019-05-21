@@ -2,9 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {Header, Replay, Results, Turn} from "./replay";
 import {Drawer} from "./Drawer";
 import {Board} from "./Board";
-import {createMuiTheme, CssBaseline, MuiThemeProvider} from "@material-ui/core";
+import {createMuiTheme, CssBaseline, Dialog, DialogTitle, MuiThemeProvider} from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
-import {paletteColor0, paletteColor3, paletteColor5} from "./palette";
+import {paletteColor0, paletteColor2, paletteColor5} from "./palette";
+import {ErrorMessage, isErrorMessage} from "./errors";
 
 const theme = createMuiTheme({
     palette: {
@@ -13,7 +14,7 @@ const theme = createMuiTheme({
             main: paletteColor0,
         },
         secondary: {
-            main: paletteColor3,
+            main: paletteColor2,
         },
         background: {
             default: paletteColor5,
@@ -48,6 +49,7 @@ export const App: React.FC = () => {
     const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
     const [webSocket, setWebSocket] = useState<WebSocket | undefined>(undefined);
     const [tracedPlayers, setTracedPlayers] = useState<number[]>([]);
+    const [error, setError] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         tryToLoadReplayFromUrl().then(setReplay);
@@ -56,6 +58,14 @@ export const App: React.FC = () => {
     return (
         <MuiThemeProvider theme={theme}>
             <CssBaseline/>
+            <Dialog
+                open={error !== undefined}
+                onClose={() => setError(undefined)}
+            >
+                <DialogTitle>
+                    {error}
+                </DialogTitle>
+            </Dialog>
             <div className={styles.root}>
                 {replay &&
                 <Board
@@ -66,15 +76,13 @@ export const App: React.FC = () => {
                 }
                 <Drawer
                     replay={replay}
-                    connected={webSocket !== undefined}
+                    webSocket={webSocket}
                     currentTurnIndex={currentTurnIndex}
                     setCurrentTurnIndex={setCurrentTurnIndex}
                     tracedPlayers={tracedPlayers}
                     setTracedPlayers={setTracedPlayers}
-                    onConnect={url => {
-                        setCurrentTurnIndex(0);
-                        setReplay(undefined);
-                        setWebSocket(connectAsSpectator(url, {
+                    onConnectWebsocket={async url => {
+                        const websocketResult = await createSpectatorWebsocket(url, {
                             onHeader: (header: Header) => {
                                 setReplay({...header, turns: [], results: []});
                                 console.log("on Header: ", header);
@@ -95,9 +103,32 @@ export const App: React.FC = () => {
                             onDisconnect: () => {
                                 setWebSocket(undefined);
                             }
-                        }));
+                        });
+
+                        if (isErrorMessage(websocketResult)) {
+                            setError(websocketResult.message);
+                            return;
+                        } else {
+                            setWebSocket(websocketResult);
+                        }
+                        setCurrentTurnIndex(0);
+                        setReplay(undefined);
                     }}
+                    onCloseWebsocket={() =>
+                        setWebSocket(ws => {
+                            if (ws) {
+                                ws.close();
+                            }
+                            return undefined;
+                        })
+                    }
                     onReplayFileUploaded={replay => {
+                        setWebSocket(ws => {
+                            if (ws) {
+                                ws.close();
+                            }
+                            return undefined;
+                        });
                         setCurrentTurnIndex(0);
                         setReplay(replay);
                     }}
@@ -114,22 +145,31 @@ interface SpectatorListener {
     onDisconnect: () => void;
 }
 
-function connectAsSpectator(url: string, listener: SpectatorListener): WebSocket {
-    const webSocket = new WebSocket(url);
-    webSocket.onmessage = message => {
-        console.log("onmessage", message);
-        const messageData = JSON.parse(message.data);
-        if (messageData.max_turns !== undefined) {
-            listener.onHeader(messageData);
-        } else if (messageData.results !== undefined) {
-            listener.onResults(messageData);
-        } else if (messageData.turn !== undefined) {
-            listener.onTurn(messageData);
-        } else {
-            throw Error(`unexpected message: ${message.data}`);
-        }
-    }
-    webSocket.onclose = listener.onDisconnect;
-
-    return webSocket;
+async function createSpectatorWebsocket(url: string, listener: SpectatorListener): Promise<WebSocket | ErrorMessage> {
+    return new Promise((resolve, reject) => {
+        const webSocket = new WebSocket(url);
+        webSocket.onopen = ev => {
+            resolve(webSocket);
+        };
+        webSocket.onerror = ev => {
+            resolve({
+                message: `Error establishing WebSocket to ${url}`
+            });
+        };
+        webSocket.onmessage = message => {
+            console.log("onmessage", message);
+            const messageData = JSON.parse(message.data);
+            if (messageData.max_turns !== undefined) {
+                listener.onHeader(messageData);
+            } else if (messageData.results !== undefined) {
+                listener.onResults(messageData);
+            } else if (messageData.turn !== undefined) {
+                listener.onTurn(messageData);
+            } else {
+                throw Error(`unexpected message: ${message.data}`);
+            }
+        };
+        webSocket.onclose = listener.onDisconnect;
+        return webSocket;
+    });
 }
