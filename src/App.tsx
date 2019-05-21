@@ -19,6 +19,9 @@ const theme = createMuiTheme({
             default: paletteColor5,
         },
     },
+    typography: {
+        useNextVariants: true,
+    }
 });
 
 const useStyles = makeStyles({
