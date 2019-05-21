@@ -3,7 +3,7 @@ export type SpritePicker = (c: string, x: number, y: number) => number | undefin
 const bombChars = "987654321";
 const playerChars = "ABCDEFGHIJKLMNOP";
 const orientationChars = "^><v";
-const letterChars = "abcdefghijklmnopqrstuuwxyz";
+// const letterChars = "abcdefghijklmnopqrstuuwxyz";
 const monsterChars = "e";
 const obsticleChars = "#X~";
 const portalChars = "o&";
@@ -54,13 +54,13 @@ export const pickMonsterSprite: SpritePicker = (c, x, y) => {
     return undefined;
 }
 
-const pickLetterSprite: SpritePicker = (c, x, y) => {
-    const index = letterChars.indexOf(c);
-    if(index === -1) {
-        return undefined;
-    }
-    return 17 + index;
-}
+// const pickLetterSprite: SpritePicker = (c, x, y) => {
+//     const index = letterChars.indexOf(c);
+//     if(index === -1) {
+//         return undefined;
+//     }
+//     return 17 + index;
+// }
 
 const pickPortalSprite: SpritePicker = (c, x, y) => {
     if (portalChars.indexOf(c) === -1) {
