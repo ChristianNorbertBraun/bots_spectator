@@ -29,7 +29,7 @@ const pickObsticleSprite: SpritePicker = (c, x, y) => {
     if (index === -1) {
         return undefined;
     }
-    return 2 + index; 
+    return 2 + index;
 };
 
 export const pickPlayerSpriteStart: SpritePicker = (c, x, y) => {
@@ -85,11 +85,11 @@ const pickSnakeTailSprite: SpritePicker = (c, x, y) => {
 
 
 export const defaultWorldSpritePicker: SpritePicker = (c, x, y) => {
-    return pickFlatlandSprite(c, x, y) || 
-        pickObsticleSprite(c, x, y) || 
-        pickPortalSprite(c, x, y) || 
-        pickGemSprite(c, x, y) || 
-        pickSnakeTailSprite (c, x, y)
+    return pickFlatlandSprite(c, x, y) ||
+        pickObsticleSprite(c, x, y) ||
+        pickPortalSprite(c, x, y) ||
+        pickGemSprite(c, x, y) ||
+        pickSnakeTailSprite(c, x, y)
 };
 
 export const hordeWorldSpritePicker: SpritePicker = (c, x, y) => {

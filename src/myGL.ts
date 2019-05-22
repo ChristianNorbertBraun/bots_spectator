@@ -122,14 +122,14 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
         texture,
         programInfo,
         initFrame: (worldRect: Rect) => initFrame(gl, programInfo, texture, worldRect),
-        drawSprite: (spriteId: number, x: number, y: number, tint: Float32Array = defaultTint ) => {
+        drawSprite: (spriteId: number, x: number, y: number, tint: Float32Array = defaultTint) => {
             drawSprite(gl, spriteId, x, y, tint, programInfo);
         }
     };
 }
 
 function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture, worldRect: Rect) {
-    resize(gl, pi,worldRect);
+    resize(gl, pi, worldRect);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(pi.program);
     gl.bindBuffer(gl.ARRAY_BUFFER, pi.vertexBuffer);

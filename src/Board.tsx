@@ -1,7 +1,7 @@
 import {Replay} from "./replay";
 import React, {useEffect, useRef, useState} from "react";
 import {createMyGL, MyGL} from "./myGL";
-import {pickPlayerSpriteStart, pickMonsterSprite, hordeWorldSpritePicker} from "./SpritePicker"
+import {hordeWorldSpritePicker, pickMonsterSprite, pickPlayerSpriteStart} from "./SpritePicker"
 import {makeStyles} from "@material-ui/styles";
 
 const orientations = "^v><";
