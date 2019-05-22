@@ -4,7 +4,7 @@ import {Drawer} from "./Drawer";
 import {Board} from "./Board";
 import {createMuiTheme, CssBaseline, Dialog, DialogTitle, MuiThemeProvider} from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
-import {paletteColor0, paletteColor2, paletteColor5} from "./palette";
+import {paletteColor0, paletteColor2, paletteColor3, paletteColor5} from "./palette";
 import {ErrorMessage, isErrorMessage} from "./errors";
 
 const theme = createMuiTheme({
@@ -19,6 +19,13 @@ const theme = createMuiTheme({
         background: {
             default: paletteColor5,
         },
+    },
+    overrides: {
+        MuiPaper: {
+            root: {
+                backgroundColor: paletteColor3,
+            }
+        }
     },
     typography: {
         useNextVariants: true,
