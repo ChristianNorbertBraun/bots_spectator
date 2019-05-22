@@ -39,6 +39,8 @@ void main() {
 
 const defaultTint = new Float32Array([1, 1, 1, 1]);
 
+const tmpMat = mat4.create();
+
 interface ProgramInfo {
     program: WebGLProgram,
     vertexBuffer: WebGLBuffer,
@@ -199,15 +201,12 @@ function calcUvCoords(atlas: HTMLImageElement): number[] {
 
 function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, tint: Float32Array, pi: ProgramInfo) {
     const spriteRad = 1;
-    const transformation = new Float32Array([
-        spriteRad, 0, 0, 0,
-        0, spriteRad, 0, 0,
-        x * spriteRad, y * spriteRad, 1, 0,
-        0, 0, 0, 1,
-    ]);
-    gl.vertexAttrib4fv(pi.tintAttribLoc, tint)
+    const m = mat4.identity(tmpMat);
+    mat4.translate(m, m, [x, y, 0]);
+    mat4.scale(m, m, [spriteRad, spriteRad, 1]);
+    gl.vertexAttrib4fv(pi.tintAttribLoc, tint);
     gl.vertexAttribPointer(pi.uvBufferLoc, 2, gl.FLOAT, false, 0, sprite << 5);
-    gl.uniformMatrix4fv(pi.transformationLoc, false, transformation);
+    gl.uniformMatrix4fv(pi.transformationLoc, false, m);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
@@ -229,7 +228,7 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo, worldRect: Rect) {
     const offX = (worldRect.width - canvasWorldWidth) / 2;
     const offY = (worldRect.height - canvasWorldHeight) / 2;
 
-    const perspective = mat4.create();
+    const perspective = mat4.identity(tmpMat);
     mat4.ortho(
         perspective,
         offX + worldRect.x,
