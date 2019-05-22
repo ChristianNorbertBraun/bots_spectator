@@ -167,6 +167,7 @@ const PlayerTable = (props: {
                             onChange={ev => {
                                 props.setTracedPlayers(arr => ev.target.checked ? [...arr, index] : arr.filter(e => e !== index));
                             }}
+                            checked={props.tracedPlayers.indexOf(index) >= 0}
                         />
                     </TableCell>
                     <TableCell align="center">{player.name}</TableCell>
