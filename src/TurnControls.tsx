@@ -80,7 +80,11 @@ export const TurnControls = (props: {
     }, [autoplay, startTimer, cancelTimer, nextMove, canNextMove, props.currentTurnIndex, props.replay]);
 
     // console.log(`TurnControls#render, autoplay: ${autoplay}, currentTurnIndex:${props.currentTurnIndex}, timerHandle.current: ${timerHandle.current}`);
-    return <>
+    return (<div
+        style={{
+            marginBottom: 24,
+        }}
+    >
         <div>
             <TextField
                 label="Turn"
@@ -90,7 +94,7 @@ export const TurnControls = (props: {
                     min: 0,
                 }}
                 style={{
-                    width: "4em",
+                    width: "5em",
                 }}
                 value={turnInputValue}
                 onChange={e => {
@@ -107,7 +111,7 @@ export const TurnControls = (props: {
                 variant="outlined"
                 style={{
                     marginLeft: 8,
-                    width: "6em",
+                    minWidth: "5em",
                 }}
                 value={props.delay}
                 onChange={e => {
@@ -176,5 +180,5 @@ export const TurnControls = (props: {
                 <SkipNext/>
             </Button>
         </div>
-    </>;
+    </div>);
 };

@@ -61,66 +61,72 @@ export const Drawer = (props: {
                 paper: styles.paper,
             }}
         >
-            <input
-                id="replayFileInput"
-                type="file"
+            <div
                 style={{
-                    display: 'none',
+                    marginBottom: 16,
                 }}
-                onChange={async e => {
-                    e.preventDefault();
-                    if (e.target.files != null && e.target.files.length > 0) {
-                        const file: File = e.target.files[0];
-                        e.target.value = ''; // Reset value, so user may upload the same filename again
-                        const content = await readFileContents(file);
-                        const replay = parseReplay(content);
-                        props.onReplayFileUploaded(replay);
-                    }
+            >
+                <input
+                    id="replayFileInput"
+                    type="file"
+                    style={{
+                        display: 'none',
+                    }}
+                    onChange={async e => {
+                        e.preventDefault();
+                        if (e.target.files != null && e.target.files.length > 0) {
+                            const file: File = e.target.files[0];
+                            e.target.value = ''; // Reset value, so user may upload the same filename again
+                            const content = await readFileContents(file);
+                            const replay = parseReplay(content);
+                            props.onReplayFileUploaded(replay);
+                        }
 
-                }}
-            />
-            <label htmlFor="replayFileInput">
-                <Button
-                    color="primary"
-                    variant="contained"
-                    component="div"
-                >
-                    Load replay
-                </Button>
-            </label>
-            {props.webSocket
-                ? <>
-                    <Typography variant="body1" style={{
-                        marginTop: 16,
-                    }}>
-                        Connected to {props.webSocket.url}
-                    </Typography>
-                    <Button
-                        color="secondary"
-                        variant="contained"
-                        onClick={props.onCloseWebsocket}
-                        style={{
-                            marginBottom: 8,
-                        }}
-                    >
-                        Disconnect
-                    </Button>
-                </>
-                : <>
-                    <TextField
-                        inputRef={addressInputRef}
-                        label="Host"
-                        defaultValue="ws://localhost:63189"
-                        margin="normal"
-                        variant="outlined"
-                    />
+                    }}
+                />
+                <label htmlFor="replayFileInput">
                     <Button
                         color="primary"
                         variant="contained"
-                        onClick={() => addressInputRef.current && props.onConnectWebsocket(addressInputRef.current.value)}>
-                        Connect
+                        component="div"
+                    >
+                        Load replay
                     </Button>
-                </>}
+                </label>
+                {props.webSocket
+                    ? <>
+                        <Typography variant="body1" style={{
+                            marginTop: 16,
+                        }}>
+                            Connected to {props.webSocket.url}
+                        </Typography>
+                        <Button
+                            color="secondary"
+                            variant="contained"
+                            onClick={props.onCloseWebsocket}
+                            style={{
+                                marginBottom: 8,
+                            }}
+                        >
+                            Disconnect
+                        </Button>
+                    </>
+                    : <>
+                        <TextField
+                            inputRef={addressInputRef}
+                            label="Host"
+                            defaultValue="ws://localhost:63189"
+                            margin="normal"
+                            variant="outlined"
+                        />
+                        <Button
+                            color="primary"
+                            variant="contained"
+                            onClick={() => addressInputRef.current && props.onConnectWebsocket(addressInputRef.current.value)}>
+                            Connect
+                        </Button>
+                    </>}
+            </div>
             {props.replay &&
             <TurnControls
                 replay={props.replay}
@@ -163,7 +169,12 @@ const PlayerTable = (props: {
     tracedPlayers: number[],
     setTracedPlayers: Dispatch<SetStateAction<number[]>>,
 }) => {
-    return <Table padding="none">
+    return <Table
+        padding="none"
+        style={{
+            marginBottom: 24,
+        }}
+    >
         <TableHead>
             <TableRow>
                 <TableCell align="center">Trace</TableCell>
