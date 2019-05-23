@@ -2,8 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {Header, Replay, Results, Turn} from "./replay";
 import {Drawer} from "./Drawer";
 import {Board} from "./Board";
-import {createMuiTheme, CssBaseline, Dialog, DialogTitle, MuiThemeProvider} from "@material-ui/core";
-import {makeStyles} from "@material-ui/styles";
+import {createMuiTheme, CssBaseline, Dialog, DialogTitle} from "@material-ui/core";
+import {makeStyles, ThemeProvider} from "@material-ui/styles";
 import {paletteColor0, paletteColor2, paletteColor3, paletteColor5} from "./palette";
 import {ErrorMessage, isErrorMessage} from "./errors";
 
@@ -24,12 +24,9 @@ const theme = createMuiTheme({
         MuiPaper: {
             root: {
                 backgroundColor: paletteColor3,
-            }
-        }
+            },
+        },
     },
-    typography: {
-        useNextVariants: true,
-    }
 });
 
 const useStyles = makeStyles({
@@ -63,7 +60,7 @@ export const App: React.FC = () => {
     }, []);
 
     return (
-        <MuiThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
             <CssBaseline/>
             <Dialog
                 open={error !== undefined}
@@ -137,7 +134,7 @@ export const App: React.FC = () => {
                     }}
                 />
             </div>
-        </MuiThemeProvider>
+        </ThemeProvider>
     );
 };
 

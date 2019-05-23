@@ -4,9 +4,9 @@
   "private": true,
   "homepage": "http://bots.cdietze.de",
   "dependencies": {
-    "@material-ui/core": "^3.9.3",
-    "@material-ui/icons": "^3.0.2",
-    "@material-ui/styles": "^3.0.0-alpha.10",
+    "@material-ui/core": "^4.0.0",
+    "@material-ui/icons": "^4.0.0",
+    "@material-ui/styles": "^4.0.0",
     "@types/file-saver": "^2.0.1",
     "@types/gl-matrix": "^2.4.5",
     "@types/jest": "24.0.12",
