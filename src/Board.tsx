@@ -25,6 +25,75 @@ function setPlayerView(posx: number, posy: number, radius: number, mapWidth: num
     return set;
 }
 
+function renderFrame(props: {
+    myGL: MyGL,
+    replay: Replay,
+    currentTurnIndex: number,
+    tracedPlayers: number[],
+}) {
+    const {myGL} = props;
+    const worldRect = {
+        x: 0, y: 0, width: props.replay.map_width, height: props.replay.map_height,
+    };
+    myGL.initFrame(worldRect);
+    if (props.replay.turns.length <= props.currentTurnIndex) {
+        return;
+    }
+    const turn = props.replay.turns[props.currentTurnIndex];
+
+    const exploredTint = new Float32Array([1.5, 1.5, 1.5, 1]);
+    const exploredFields = new Array(props.replay.map_width * props.replay.map_height).fill(false);
+    for (let turnIndex = 0; turnIndex <= props.currentTurnIndex; ++turnIndex) {
+        const turn = props.replay.turns[turnIndex];
+        for (let i = 0; i < turn.players.length; ++i) {
+            if (props.tracedPlayers.indexOf(i) < 0) continue;
+            let player = turn.players[i];
+            setPlayerView(player.x, player.y, props.replay.view_radius, props.replay.map_width, props.replay.map_height, exploredFields);
+        }
+    }
+
+    for (let yy = 0; yy < props.replay.map_height; ++yy) {
+        const y = props.replay.map_height - yy - 1;
+        for (let x = 0; x < props.replay.map_width; ++x) {
+            const index = x + yy * props.replay.map_width;
+            const c = turn.map.charAt(index);
+            const tint = exploredFields[index] ? exploredTint : undefined;
+
+            const spriteIndex = hordeWorldSpritePicker(c, x, y);
+            myGL.drawSprite(spriteIndex!!, x, y, tint);
+
+            const monsterSpriteIndex = pickMonsterSprite(c, x, y)
+            if (monsterSpriteIndex !== undefined) {
+                myGL.drawSprite(monsterSpriteIndex!!, x, y, tint);
+            }
+        }
+    }
+
+    // Draw traces
+    const traceTint = new Float32Array([1, 1, 1, 0.3]);
+    for (let turnIndex = 0; turnIndex < props.currentTurnIndex; ++turnIndex) {
+        const turn = props.replay.turns[turnIndex];
+        for (let i = 0; i < turn.players.length; ++i) {
+            if (props.tracedPlayers.indexOf(i) < 0) continue;
+            let player = turn.players[i];
+            const orientationOffset = orientations.indexOf(player.bearing);
+            const y = props.replay.map_height - player.y - 1;
+            const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y);
+            myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y, traceTint);
+        }
+    }
+
+    for (const player of turn.players) {
+        if (player.life <= 0) {
+            continue;
+        }
+        const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y);
+        const orientationOffset = orientations.indexOf(player.bearing);
+        const y = props.replay.map_height - player.y - 1;
+        myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y);
+    }
+}
+
 export const Board = (props: {
     replay: Replay,
     currentTurnIndex: number,
@@ -51,66 +120,7 @@ export const Board = (props: {
 
     useEffect(() => {
         if (myGL === undefined) return;
-        const worldRect = {
-            x: 0, y: 0, width: props.replay.map_width, height: props.replay.map_height,
-        };
-        myGL.initFrame(worldRect);
-        if (props.replay.turns.length <= props.currentTurnIndex) {
-            return;
-        }
-        const turn = props.replay.turns[props.currentTurnIndex];
-
-        const exploredTint = new Float32Array([1.5, 1.5, 1.5, 1]);
-        const exploredFields = new Array(props.replay.map_width * props.replay.map_height).fill(false);
-        for (let turnIndex = 0; turnIndex <= props.currentTurnIndex; ++turnIndex) {
-            const turn = props.replay.turns[turnIndex];
-            for (let i = 0; i < turn.players.length; ++i) {
-                if (props.tracedPlayers.indexOf(i) < 0) continue;
-                let player = turn.players[i];
-                setPlayerView(player.x, player.y, props.replay.view_radius, props.replay.map_width, props.replay.map_height, exploredFields);
-            }
-        }
-
-        for (let yy = 0; yy < props.replay.map_height; ++yy) {
-            const y = props.replay.map_height - yy - 1;
-            for (let x = 0; x < props.replay.map_width; ++x) {
-                const index = x + yy * props.replay.map_width;
-                const c = turn.map.charAt(index);
-                const tint = exploredFields[index] ? exploredTint : undefined;
-
-                const spriteIndex = hordeWorldSpritePicker(c, x, y);
-                myGL.drawSprite(spriteIndex!!, x, y, tint);
-
-                const monsterSpriteIndex = pickMonsterSprite(c, x, y)
-                if (monsterSpriteIndex !== undefined) {
-                    myGL.drawSprite(monsterSpriteIndex!!, x, y, tint);
-                }
-            }
-        }
-
-        // Draw traces
-        const traceTint = new Float32Array([1, 1, 1, 0.3]);
-        for (let turnIndex = 0; turnIndex < props.currentTurnIndex; ++turnIndex) {
-            const turn = props.replay.turns[turnIndex];
-            for (let i = 0; i < turn.players.length; ++i) {
-                if (props.tracedPlayers.indexOf(i) < 0) continue;
-                let player = turn.players[i];
-                const orientationOffset = orientations.indexOf(player.bearing);
-                const y = props.replay.map_height - player.y - 1;
-                const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y);
-                myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y, traceTint);
-            }
-        }
-
-        for (const player of turn.players) {
-            if (player.life <= 0) {
-                continue;
-            }
-            const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y);
-            const orientationOffset = orientations.indexOf(player.bearing);
-            const y = props.replay.map_height - player.y - 1;
-            myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y);
-        }
+        renderFrame({myGL, ...props,});
     });
 
     return (
