@@ -61,72 +61,74 @@ export const Drawer = (props: {
                 paper: styles.paper,
             }}
         >
+            <input
+                id="replayFileInput"
+                type="file"
+                style={{
+                    display: 'none',
+                }}
+                onChange={async e => {
+                    e.preventDefault();
+                    if (e.target.files != null && e.target.files.length > 0) {
+                        const file: File = e.target.files[0];
+                        e.target.value = ''; // Reset value, so user may upload the same filename again
+                        const content = await readFileContents(file);
+                        const replay = parseReplay(content);
+                        props.onReplayFileUploaded(replay);
+                    }
+
+                }}
+            />
+            <label htmlFor="replayFileInput">
+                <Button
+                    color="primary"
+                    variant="contained"
+                    component="div"
+                    style={{
+                        width: "100%",
+                    }}
+                >
+                    Load replay
+                </Button>
+            </label>
+            {props.webSocket
+                ? <>
+                    <Typography variant="body1" style={{
+                        marginTop: 16,
+                    }}>
+                        Connected to {props.webSocket.url}
+                    </Typography>
+                    <Button
+                        color="secondary"
+                        variant="contained"
+                        onClick={props.onCloseWebsocket}
+                        style={{
+                            marginBottom: 8,
+                        }}
+                    >
+                        Disconnect
+                    </Button>
+                </>
+                : <>
+                    <TextField
+                        inputRef={addressInputRef}
+                        label="Host"
+                        defaultValue="ws://localhost:63189"
+                        margin="normal"
+                        variant="outlined"
+                    />
+                    <Button
+                        color="primary"
+                        variant="contained"
+                        onClick={() => addressInputRef.current && props.onConnectWebsocket(addressInputRef.current.value)}>
+                        Connect
+                    </Button>
+                </>}
             <div
                 style={{
                     marginBottom: 16,
                 }}
-            >
-                <input
-                    id="replayFileInput"
-                    type="file"
-                    style={{
-                        display: 'none',
-                    }}
-                    onChange={async e => {
-                        e.preventDefault();
-                        if (e.target.files != null && e.target.files.length > 0) {
-                            const file: File = e.target.files[0];
-                            e.target.value = ''; // Reset value, so user may upload the same filename again
-                            const content = await readFileContents(file);
-                            const replay = parseReplay(content);
-                            props.onReplayFileUploaded(replay);
-                        }
-
-                    }}
-                />
-                <label htmlFor="replayFileInput">
-                    <Button
-                        color="primary"
-                        variant="contained"
-                        component="div"
-                    >
-                        Load replay
-                    </Button>
-                </label>
-                {props.webSocket
-                    ? <>
-                        <Typography variant="body1" style={{
-                            marginTop: 16,
-                        }}>
-                            Connected to {props.webSocket.url}
-                        </Typography>
-                        <Button
-                            color="secondary"
-                            variant="contained"
-                            onClick={props.onCloseWebsocket}
-                            style={{
-                                marginBottom: 8,
-                            }}
-                        >
-                            Disconnect
-                        </Button>
-                    </>
-                    : <>
-                        <TextField
-                            inputRef={addressInputRef}
-                            label="Host"
-                            defaultValue="ws://localhost:63189"
-                            margin="normal"
-                            variant="outlined"
-                        />
-                        <Button
-                            color="primary"
-                            variant="contained"
-                            onClick={() => addressInputRef.current && props.onConnectWebsocket(addressInputRef.current.value)}>
-                            Connect
-                        </Button>
-                    </>}
-            </div>
+            />
             {props.replay &&
             <TurnControls
                 replay={props.replay}
@@ -144,21 +146,19 @@ export const Drawer = (props: {
             />
             }
             {props.replay && isFinished(props.replay) &&
-            <>
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => {
-                        const blob = new Blob([JSON.stringify(props.replay)], {
-                            type: "application/json;charset=utf-8",
-                        });
-                        FileSaver.saveAs(blob, "replay.json");
-                    }
-                    }
-                >
-                    Download replay
-                </Button>
-            </>
+            <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => {
+                    const blob = new Blob([JSON.stringify(props.replay)], {
+                        type: "application/json;charset=utf-8",
+                    });
+                    FileSaver.saveAs(blob, "replay.json");
+                }
+                }
+            >
+                Download replay
+            </Button>
             }
         </MuiDrawer>
     );
