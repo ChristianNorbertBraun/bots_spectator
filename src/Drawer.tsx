@@ -1,4 +1,4 @@
-import {parseReplay, Replay, Turn} from "./replay";
+import {isFinished, parseReplay, Replay, Turn} from "./replay";
 import React, {Dispatch, SetStateAction, useRef, useState} from "react";
 import {
     Button,
@@ -15,6 +15,7 @@ import {
 import {makeStyles} from "@material-ui/styles";
 import {paletteColor3} from "./palette";
 import {TurnControls} from "./TurnControls";
+import * as FileSaver from 'file-saver';
 
 const drawerWidth = 300;
 
@@ -84,7 +85,7 @@ export const Drawer = (props: {
                     variant="contained"
                     component="div"
                 >
-                    Load file
+                    Load replay
                 </Button>
             </label>
             {props.webSocket
@@ -135,6 +136,23 @@ export const Drawer = (props: {
                 tracedPlayers={props.tracedPlayers}
                 setTracedPlayers={props.setTracedPlayers}
             />
+            }
+            {props.replay && isFinished(props.replay) &&
+            <>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => {
+                        const blob = new Blob([JSON.stringify(props.replay)], {
+                            type: "application/json;charset=utf-8",
+                        });
+                        FileSaver.saveAs(blob, "replay.json");
+                    }
+                    }
+                >
+                    Download replay
+                </Button>
+            </>
             }
         </MuiDrawer>
     );
