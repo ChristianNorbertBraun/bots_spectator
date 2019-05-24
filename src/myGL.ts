@@ -45,12 +45,12 @@ interface ProgramInfo {
     program: WebGLProgram,
     vertexBuffer: WebGLBuffer,
     uvBuffer: WebGLBuffer,
-    vertexBufferLoc: number,
-    uvBufferLoc: number,
+    posAttribLoc: number,
+    uvAttribLoc: number,
     tintAttribLoc: number,
-    perspectiveLoc: WebGLUniformLocation,
-    transformationLoc: WebGLUniformLocation,
-    textureLoc: WebGLUniformLocation,
+    perspectiveUniformLoc: WebGLUniformLocation,
+    transformationUniformLoc: WebGLUniformLocation,
+    textureUniformLoc: WebGLUniformLocation,
 }
 
 function compileShader(gl: WebGLRenderingContext, type: GLenum, src: string) {
@@ -70,29 +70,30 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
             1, 1,
             1, 0]),
         gl.STATIC_DRAW);
+
     const uvBuffer = gl.createBuffer()!!;
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(calcUvCoords(atlas)), gl.STATIC_DRAW);
 
-    const vertexBufferLoc = gl.getAttribLocation(program, 'a_pos');
-    gl.enableVertexAttribArray(vertexBufferLoc);
-    const uvBufferLoc = gl.getAttribLocation(program, 'a_uv');
-    gl.enableVertexAttribArray(uvBufferLoc);
+    const posAttribLoc = gl.getAttribLocation(program, 'a_pos');
+    gl.enableVertexAttribArray(posAttribLoc);
+    const uvAttribLoc = gl.getAttribLocation(program, 'a_uv');
+    gl.enableVertexAttribArray(uvAttribLoc);
     const tintAttribLoc = gl.getAttribLocation(program, "a_tint");
 
-    const perspectiveLoc = gl.getUniformLocation(program, 'u_perspective')!!;
-    const transformationLoc = gl.getUniformLocation(program, 'u_transformation')!!;
-    const textureLoc = gl.getUniformLocation(program, 'u_texture')!!;
+    const perspectiveUniformLoc = gl.getUniformLocation(program, 'u_perspective')!!;
+    const transformationUniformLoc = gl.getUniformLocation(program, 'u_transformation')!!;
+    const textureUniformLoc = gl.getUniformLocation(program, 'u_texture')!!;
     return {
         program,
         vertexBuffer,
         uvBuffer,
-        vertexBufferLoc,
-        uvBufferLoc,
+        posAttribLoc,
+        uvAttribLoc,
         tintAttribLoc,
-        perspectiveLoc,
-        transformationLoc,
-        textureLoc,
+        perspectiveUniformLoc,
+        transformationUniformLoc,
+        textureUniformLoc,
     };
 }
 
@@ -135,10 +136,10 @@ function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTex
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(pi.program);
     gl.bindBuffer(gl.ARRAY_BUFFER, pi.vertexBuffer);
-    gl.vertexAttribPointer(pi.vertexBufferLoc, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(pi.posAttribLoc, 2, gl.FLOAT, false, 0, 0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.uniform1i(pi.textureLoc, 0);
+    gl.uniform1i(pi.textureUniformLoc, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, pi.uvBuffer);
 }
 
@@ -205,8 +206,8 @@ function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: num
     mat4.translate(m, m, [x, y, 0]);
     mat4.scale(m, m, [spriteRad, spriteRad, 1]);
     gl.vertexAttrib4fv(pi.tintAttribLoc, tint);
-    gl.vertexAttribPointer(pi.uvBufferLoc, 2, gl.FLOAT, false, 0, sprite << 5);
-    gl.uniformMatrix4fv(pi.transformationLoc, false, m);
+    gl.vertexAttribPointer(pi.uvAttribLoc, 2, gl.FLOAT, false, 0, sprite << 5);
+    gl.uniformMatrix4fv(pi.transformationUniformLoc, false, m);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
@@ -239,5 +240,5 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo, worldRect: Rect) {
         10,
     );
 
-    gl.uniformMatrix4fv(pi.perspectiveLoc, false, perspective);
+    gl.uniformMatrix4fv(pi.perspectiveUniformLoc, false, perspective);
 }
