@@ -4,18 +4,18 @@ import chroma from "chroma-js";
 import {Rect} from "./geom";
 
 const vertexShaderSource = `
-attribute vec2 p;
-attribute vec2 uv;
-attribute vec4 tint;
-uniform mat4 perspective;
-uniform mat4 transformation;
-varying vec2 vuv;
-varying vec4 vtint;
+attribute vec2 a_pos;
+attribute vec2 a_uv;
+attribute vec4 a_tint;
+uniform mat4 u_perspective;
+uniform mat4 u_transformation;
+varying vec2 v_uv;
+varying vec4 v_tint;
 
 void main() {
-  gl_Position = perspective * transformation * vec4(p, 1., 1.);
-  vuv = uv;
-  vtint = tint;
+  gl_Position = u_perspective * u_transformation * vec4(a_pos, 1., 1.);
+  v_uv = a_uv;
+  v_tint = a_tint;
 }
 `;
 
@@ -26,14 +26,14 @@ precision highp float;
 precision mediump float;
 #endif
 
-varying vec2 vuv;
-varying vec4 vtint;
-uniform sampler2D texture;
+varying vec2 v_uv;
+varying vec4 v_tint;
+uniform sampler2D u_texture;
 
 void main() {
-  gl_FragColor = texture2D(texture, vuv.st).rgba;
-  gl_FragColor.rgb *= vtint.rgb;
-  gl_FragColor *= vtint.a;
+  gl_FragColor = texture2D(u_texture, v_uv.st).rgba;
+  gl_FragColor.rgb *= v_tint.rgb;
+  gl_FragColor *= v_tint.a;
 }
 `;
 
@@ -74,15 +74,15 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(calcUvCoords(atlas)), gl.STATIC_DRAW);
 
-    const vertexBufferLoc = gl.getAttribLocation(program, 'p');
+    const vertexBufferLoc = gl.getAttribLocation(program, 'a_pos');
     gl.enableVertexAttribArray(vertexBufferLoc);
-    const uvBufferLoc = gl.getAttribLocation(program, 'uv');
+    const uvBufferLoc = gl.getAttribLocation(program, 'a_uv');
     gl.enableVertexAttribArray(uvBufferLoc);
-    const tintAttribLoc = gl.getAttribLocation(program, "tint");
+    const tintAttribLoc = gl.getAttribLocation(program, "a_tint");
 
-    const perspectiveLoc = gl.getUniformLocation(program, 'perspective')!!;
-    const transformationLoc = gl.getUniformLocation(program, 'transformation')!!;
-    const textureLoc = gl.getUniformLocation(program, 'texture')!!;
+    const perspectiveLoc = gl.getUniformLocation(program, 'u_perspective')!!;
+    const transformationLoc = gl.getUniformLocation(program, 'u_transformation')!!;
+    const textureLoc = gl.getUniformLocation(program, 'u_texture')!!;
     return {
         program,
         vertexBuffer,
