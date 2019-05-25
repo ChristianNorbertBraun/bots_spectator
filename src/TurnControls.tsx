@@ -1,6 +1,6 @@
 import {isFinished, Replay} from "./replay";
 import React, {Dispatch, SetStateAction, useCallback, useEffect, useRef, useState} from "react";
-import {Button, InputAdornment, MenuItem, TextField} from "@material-ui/core";
+import {Button, Checkbox, FormControlLabel, InputAdornment, MenuItem, TextField} from "@material-ui/core";
 import {ChevronLeft, ChevronRight, Pause, PlayArrow, SkipNext, SkipPrevious} from "@material-ui/icons";
 import {makeStyles} from "@material-ui/styles";
 
@@ -22,6 +22,8 @@ export const TurnControls = (props: {
     delay: number,
     setDelay: (d: number) => void,
     setCurrentTurnIndex: Dispatch<SetStateAction<number>>,
+    mode3d: boolean,
+    setMode3d: (mode3d: boolean) => void,
 }) => {
     const [turnInputValue, setTurnInputValue] = useState<string>((props.currentTurnIndex + 1).toString(10));
     const [autoplay, setAutoplay] = useState<boolean>(!isFinished(props.replay));
@@ -128,6 +130,17 @@ export const TurnControls = (props: {
                     </MenuItem>
                 ))}
             </TextField>
+            <FormControlLabel
+                style={{
+                    marginTop: 24,
+                    marginLeft: 0,
+                }}
+                label="3D"
+                control={<Checkbox
+                    checked={props.mode3d}
+                    onChange={ev => props.setMode3d(ev.target.checked)}
+                />}
+            />
         </div>
         <div className={styles.buttonContainer}>
             <Button

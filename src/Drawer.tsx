@@ -17,7 +17,7 @@ import {paletteColor3} from "./palette";
 import {TurnControls} from "./TurnControls";
 import * as FileSaver from 'file-saver';
 
-const drawerWidth = 300;
+const drawerWidth = 320;
 
 const useStyles = makeStyles({
     root: {
@@ -44,6 +44,8 @@ export const Drawer = (props: {
     onConnectWebsocket: (url: string) => Promise<void>,
     onCloseWebsocket: () => void,
     onReplayFileUploaded: (replay: Replay) => void,
+    mode3d: boolean,
+    setMode3d: (mode3d: boolean) => void,
 }) => {
     const addressInputRef = useRef<HTMLInputElement>(null);
 
@@ -136,6 +138,8 @@ export const Drawer = (props: {
                 delay={delay}
                 setDelay={setDelay}
                 setCurrentTurnIndex={props.setCurrentTurnIndex}
+                mode3d={props.mode3d}
+                setMode3d={props.setMode3d}
             />
             }
             {currentTurn &&

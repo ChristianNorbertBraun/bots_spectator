@@ -1,9 +1,10 @@
 import {Replay} from "./replay";
 import React, {useEffect, useRef, useState} from "react";
-import {createMyGL, createVertexPosBuffer, drawSprite, MyGL} from "./myGL";
-import {hordeWorldSpritePicker, pickMonsterSprite, pickPlayerSpriteStart} from "./SpritePicker"
+import {createMyGL, drawSprite, MyGL} from "./myGL";
+import {bombWorldSpritePicker, pickMonsterSprite, pickPlayerSpriteStart} from "./SpritePicker"
 import {makeStyles} from "@material-ui/styles";
 import {Dimension} from "./geom";
+import {createPlaneVertexPosBuffer, createTorusVertexPosBuffer} from "./vertexPosBuffers";
 
 const orientations = "^v><";
 
@@ -28,6 +29,7 @@ function setPlayerView(posx: number, posy: number, radius: number, mapWidth: num
 
 function renderFrame(props: {
     myGL: MyGL,
+    vertexPosBuffer: WebGLBuffer,
     replay: Replay,
     currentTurnIndex: number,
     tracedPlayers: number[],
@@ -37,7 +39,6 @@ function renderFrame(props: {
         width: props.replay.map_width, height: props.replay.map_height,
     };
     myGL.initFrame(mapDim);
-    const vertexPosBuffer = createVertexPosBuffer(myGL.gl, mapDim);
 
     if (props.replay.turns.length <= props.currentTurnIndex) {
         return;
@@ -63,12 +64,13 @@ function renderFrame(props: {
             const c = turn.map.charAt(index);
             const tint = exploredFields[index] ? exploredTint : undefined;
 
-            const spriteIndex = hordeWorldSpritePicker(c, x, y);
-            drawSprite(myGL.gl, myGL.programInfo, vertexPosBuffer, mapDim, spriteIndex!!, pos, tint);
+            const spriteIndex = bombWorldSpritePicker(c, x, y);
+            // const spriteIndex = hordeWorldSpritePicker(c, x, y);
+            drawSprite(myGL.gl, myGL.programInfo, props.vertexPosBuffer, mapDim, spriteIndex!!, pos, tint);
 
             const monsterSpriteIndex = pickMonsterSprite(c, x, y)
             if (monsterSpriteIndex !== undefined) {
-                drawSprite(myGL.gl, myGL.programInfo, vertexPosBuffer, mapDim, monsterSpriteIndex!!, pos, tint);
+                drawSprite(myGL.gl, myGL.programInfo, props.vertexPosBuffer, mapDim, monsterSpriteIndex!!, pos, tint);
             }
         }
     }
@@ -84,7 +86,7 @@ function renderFrame(props: {
             const y = props.replay.map_height - player.y - 1;
             const pos = {x: player.x, y};
             const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y);
-            drawSprite(myGL.gl, myGL.programInfo, vertexPosBuffer, mapDim, playerSpriteStartIndex!! + orientationOffset, pos, traceTint);
+            drawSprite(myGL.gl, myGL.programInfo, props.vertexPosBuffer, mapDim, playerSpriteStartIndex!! + orientationOffset, pos, traceTint);
         }
     }
 
@@ -96,7 +98,7 @@ function renderFrame(props: {
         const orientationOffset = orientations.indexOf(player.bearing);
         const y = props.replay.map_height - player.y - 1;
         const pos = {x: player.x, y};
-        drawSprite(myGL.gl, myGL.programInfo, vertexPosBuffer, mapDim, playerSpriteStartIndex!! + orientationOffset, pos);
+        drawSprite(myGL.gl, myGL.programInfo, props.vertexPosBuffer, mapDim, playerSpriteStartIndex!! + orientationOffset, pos);
     }
 }
 
@@ -104,10 +106,13 @@ export const Board = (props: {
     replay: Replay,
     currentTurnIndex: number,
     tracedPlayers: number[],
+    mode3d: boolean,
 }) => {
     const styles = useStyles();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [myGL, setMyGL] = useState<MyGL>();
+    const torusVertexPosBuffer = useRef<WebGLBuffer | null>(null);
+    const planeVertexPosBuffer = useRef<WebGLBuffer | null>(null);
     useWindowSize(); // This dependencies triggers a re-render when the window size changes
 
     useEffect(() => {
@@ -123,10 +128,20 @@ export const Board = (props: {
         },
         [] // no deps means only run this effect once (after mount)
     );
+    useEffect(() => {
+        if (myGL === undefined) return;
+        const mapDim: Dimension = {
+            width: props.replay.map_width, height: props.replay.map_height,
+        };
+        console.log(`Recreating vertex pos buffer for map dims: ${mapDim}`);
+        torusVertexPosBuffer.current = createTorusVertexPosBuffer(myGL!!.gl, mapDim);
+        planeVertexPosBuffer.current = createPlaneVertexPosBuffer(myGL!!.gl, mapDim);
+    }, [props.replay, myGL]);
 
     useEffect(() => {
         if (myGL === undefined) return;
-        renderFrame({myGL, ...props,});
+        const vertexPosBuffer = props.mode3d ? torusVertexPosBuffer.current!! : planeVertexPosBuffer.current!!;
+        renderFrame({myGL, vertexPosBuffer, ...props,});
     });
 
     return (

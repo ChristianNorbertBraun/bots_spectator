@@ -53,6 +53,7 @@ export const App: React.FC = () => {
     const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
     const [webSocket, setWebSocket] = useState<WebSocket | undefined>(undefined);
     const [tracedPlayers, setTracedPlayers] = useState<number[]>([]);
+    const [mode3d, setMode3d] = useState<boolean>(false);
     const [error, setError] = useState<string | undefined>(undefined);
 
     useEffect(() => {
@@ -76,6 +77,7 @@ export const App: React.FC = () => {
                     replay={replay}
                     currentTurnIndex={currentTurnIndex}
                     tracedPlayers={tracedPlayers}
+                    mode3d={mode3d}
                 />
                 }
                 <Drawer
@@ -85,6 +87,8 @@ export const App: React.FC = () => {
                     setCurrentTurnIndex={setCurrentTurnIndex}
                     tracedPlayers={tracedPlayers}
                     setTracedPlayers={setTracedPlayers}
+                    mode3d={mode3d}
+                    setMode3d={setMode3d}
                     onConnectWebsocket={async url => {
                         const websocketResult = await createSpectatorWebsocket(url, {
                             onHeader: (header: Header) => {

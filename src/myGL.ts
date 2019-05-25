@@ -4,7 +4,7 @@ import chroma from "chroma-js";
 import {Dimension, Point, Rect} from "./geom";
 
 const vertexShaderSource = `
-attribute vec2 a_pos;
+attribute vec3 a_pos;
 attribute vec2 a_uv;
 attribute vec4 a_tint;
 uniform mat4 u_perspective;
@@ -12,7 +12,7 @@ varying vec2 v_uv;
 varying vec4 v_tint;
 
 void main() {
-  gl_Position = u_perspective * vec4(a_pos, 1., 1.);
+  gl_Position = u_perspective * vec4(a_pos, 1.);
   v_uv = a_uv;
   v_tint = a_tint;
 }
@@ -38,7 +38,7 @@ void main() {
 
 const defaultTint = new Float32Array([1, 1, 1, 1]);
 
-const tmpMat = mat4.create();
+const tmpMat4 = mat4.create();
 
 interface ProgramInfo {
     program: WebGLProgram,
@@ -82,36 +82,6 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     };
 }
 
-export function createVertexPosBuffer(gl: WebGLRenderingContext, mapDim: Dimension): WebGLBuffer {
-    const buf = gl.createBuffer()!!;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    const data = new Float32Array(mapDim.width * mapDim.height * 4 * 3);
-
-    function setVec(index: number, v: number[]) {
-        data[index * 3] = v[0];
-        data[index * 3 + 1] = v[1];
-        data[index * 3 + 2] = v[2];
-        data[index * 3 + 3] = v[3];
-    }
-
-    for (let y = 0; y < mapDim.height; ++y) {
-        for (let x = 0; x < mapDim.width; ++x) {
-            const off = (y * mapDim.width + x) * 4;
-            setVec(off, torusPosOf(mapDim, x, y + 1));
-            setVec(off + 1, torusPosOf(mapDim, x, y));
-            setVec(off + 2, torusPosOf(mapDim, x + 1, y + 1));
-            setVec(off + 3, torusPosOf(mapDim, x + 1, y));
-        }
-    }
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-    return buf;
-}
-
-function torusPosOf(mapDim: Dimension, x: number, y: number): number[] {
-    // TODO: really calc torus coords here
-    return [x, y, 0];
-}
-
 export interface MyGL {
     gl: WebGLRenderingContext,
     programInfo: ProgramInfo,
@@ -135,6 +105,8 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
     gl.clearColor(bgColor[0], bgColor[1], bgColor[2], 1);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
 
     return {
         gl,
@@ -230,24 +202,16 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo, worldRect: Rect) {
     gl.canvas.height = canvasHeight;
     gl.viewport(0, 0, canvasWidth, canvasHeight);
 
-    const scaleX = worldRect.width / canvasWidth;
-    const scaleY = worldRect.height / canvasHeight;
-    const scale = Math.max(scaleX, scaleY);
+    const x = canvasWidth > canvasHeight ? canvasWidth / canvasHeight : 1.0;
+    const y = canvasHeight > canvasWidth ? canvasHeight / canvasWidth : 1.0;
 
-    // Canvas dimensions in world space
-    const canvasWorldWidth = scale * canvasWidth;
-    const canvasWorldHeight = scale * canvasHeight;
-
-    const offX = (worldRect.width - canvasWorldWidth) / 2;
-    const offY = (worldRect.height - canvasWorldHeight) / 2;
-
-    const perspective = mat4.identity(tmpMat);
+    const perspective = mat4.identity(tmpMat4);
     mat4.ortho(
         perspective,
-        offX + worldRect.x,
-        offX + worldRect.x + scale * canvasWidth,
-        offY + worldRect.y,
-        offY + worldRect.y + scale * canvasHeight,
+        -x,
+        x,
+        -y,
+        y,
         -10,
         10,
     );
