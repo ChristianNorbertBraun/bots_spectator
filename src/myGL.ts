@@ -1,19 +1,18 @@
 import {mat4} from "gl-matrix";
 import {paletteColor5} from "./palette";
 import chroma from "chroma-js";
-import {Rect} from "./geom";
+import {Dimension, Point, Rect} from "./geom";
 
 const vertexShaderSource = `
 attribute vec2 a_pos;
 attribute vec2 a_uv;
 attribute vec4 a_tint;
 uniform mat4 u_perspective;
-uniform mat4 u_transformation;
 varying vec2 v_uv;
 varying vec4 v_tint;
 
 void main() {
-  gl_Position = u_perspective * u_transformation * vec4(a_pos, 1., 1.);
+  gl_Position = u_perspective * vec4(a_pos, 1., 1.);
   v_uv = a_uv;
   v_tint = a_tint;
 }
@@ -43,13 +42,11 @@ const tmpMat = mat4.create();
 
 interface ProgramInfo {
     program: WebGLProgram,
-    vertexBuffer: WebGLBuffer,
     uvBuffer: WebGLBuffer,
     posAttribLoc: number,
     uvAttribLoc: number,
     tintAttribLoc: number,
     perspectiveUniformLoc: WebGLUniformLocation,
-    transformationUniformLoc: WebGLUniformLocation,
     textureUniformLoc: WebGLUniformLocation,
 }
 
@@ -61,47 +58,65 @@ function compileShader(gl: WebGLRenderingContext, type: GLenum, src: string) {
 }
 
 function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HTMLImageElement): ProgramInfo {
-    const vertexBuffer = gl.createBuffer()!!;
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER,
-        new Float32Array([
-            0, 1,
-            0, 0,
-            1, 1,
-            1, 0]),
-        gl.STATIC_DRAW);
+    const posAttribLoc = gl.getAttribLocation(program, 'a_pos');
+    gl.enableVertexAttribArray(posAttribLoc);
 
     const uvBuffer = gl.createBuffer()!!;
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(calcUvCoords(atlas)), gl.STATIC_DRAW);
 
-    const posAttribLoc = gl.getAttribLocation(program, 'a_pos');
-    gl.enableVertexAttribArray(posAttribLoc);
     const uvAttribLoc = gl.getAttribLocation(program, 'a_uv');
     gl.enableVertexAttribArray(uvAttribLoc);
     const tintAttribLoc = gl.getAttribLocation(program, "a_tint");
 
     const perspectiveUniformLoc = gl.getUniformLocation(program, 'u_perspective')!!;
-    const transformationUniformLoc = gl.getUniformLocation(program, 'u_transformation')!!;
     const textureUniformLoc = gl.getUniformLocation(program, 'u_texture')!!;
     return {
         program,
-        vertexBuffer,
         uvBuffer,
         posAttribLoc,
         uvAttribLoc,
         tintAttribLoc,
         perspectiveUniformLoc,
-        transformationUniformLoc,
         textureUniformLoc,
     };
 }
 
+export function createVertexPosBuffer(gl: WebGLRenderingContext, mapDim: Dimension): WebGLBuffer {
+    const buf = gl.createBuffer()!!;
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    const data = new Float32Array(mapDim.width * mapDim.height * 4 * 3);
+
+    function setVec(index: number, v: number[]) {
+        data[index * 3] = v[0];
+        data[index * 3 + 1] = v[1];
+        data[index * 3 + 2] = v[2];
+        data[index * 3 + 3] = v[3];
+    }
+
+    for (let y = 0; y < mapDim.height; ++y) {
+        for (let x = 0; x < mapDim.width; ++x) {
+            const off = (y * mapDim.width + x) * 4;
+            setVec(off, torusPosOf(mapDim, x, y + 1));
+            setVec(off + 1, torusPosOf(mapDim, x, y));
+            setVec(off + 2, torusPosOf(mapDim, x + 1, y + 1));
+            setVec(off + 3, torusPosOf(mapDim, x + 1, y));
+        }
+    }
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    return buf;
+}
+
+function torusPosOf(mapDim: Dimension, x: number, y: number): number[] {
+    // TODO: really calc torus coords here
+    return [x, y, 0];
+}
+
 export interface MyGL {
-    texture: WebGLTexture,
+    gl: WebGLRenderingContext,
     programInfo: ProgramInfo,
-    initFrame: (worldRect: Rect) => void,
-    drawSprite: (spriteId: number, x: number, y: number, tint?: Float32Array) => void,
+    texture: WebGLTexture,
+    initFrame: (mapDim: Dimension) => void,
 }
 
 export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
@@ -122,21 +137,20 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     return {
+        gl,
         texture,
         programInfo,
-        initFrame: (worldRect: Rect) => initFrame(gl, programInfo, texture, worldRect),
-        drawSprite: (spriteId: number, x: number, y: number, tint: Float32Array = defaultTint) => {
-            drawSprite(gl, spriteId, x, y, tint, programInfo);
-        }
+        initFrame: (mapDim: Dimension) => initFrame(gl, programInfo, texture, mapDim),
     };
 }
 
-function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture, worldRect: Rect) {
+function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture, mapDim: Dimension) {
+    const worldRect = {
+        x: 0, y: 0, width: mapDim.width, height: mapDim.height,
+    };
     resize(gl, pi, worldRect);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(pi.program);
-    gl.bindBuffer(gl.ARRAY_BUFFER, pi.vertexBuffer);
-    gl.vertexAttribPointer(pi.posAttribLoc, 2, gl.FLOAT, false, 0, 0);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.uniform1i(pi.textureUniformLoc, 0);
@@ -200,14 +214,12 @@ function calcUvCoords(atlas: HTMLImageElement): number[] {
     return coords;
 }
 
-function drawSprite(gl: WebGLRenderingContext, sprite: number, x: number, y: number, tint: Float32Array, pi: ProgramInfo) {
-    const spriteRad = 1;
-    const m = mat4.identity(tmpMat);
-    mat4.translate(m, m, [x, y, 0]);
-    mat4.scale(m, m, [spriteRad, spriteRad, 1]);
-    gl.vertexAttrib4fv(pi.tintAttribLoc, tint);
+export function drawSprite(gl: WebGLRenderingContext, pi: ProgramInfo, vertexPosBuffer: WebGLBuffer, mapDim: Dimension, sprite: number, tilePos: Point, tint: Float32Array = defaultTint) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
+    gl.vertexAttribPointer(pi.posAttribLoc, 3, gl.FLOAT, false, 0, (tilePos.y * mapDim.width + tilePos.x) * 4 * 3 * 4);
+    gl.bindBuffer(gl.ARRAY_BUFFER, pi.uvBuffer);
     gl.vertexAttribPointer(pi.uvAttribLoc, 2, gl.FLOAT, false, 0, sprite << 5);
-    gl.uniformMatrix4fv(pi.transformationUniformLoc, false, m);
+    gl.vertexAttrib4fv(pi.tintAttribLoc, tint);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
