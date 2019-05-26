@@ -7,7 +7,11 @@ TODO
 - [ ] Animate sprites so they move smoothly between turns
 - [ ] Show sensible error message when loaded replay file is obviously corrupt
 - [ ] Update favicon + page title
+- [ ] Add nicer lighting for 3d mode
+- [ ] Add option to follow specific player (for 3d mode)
+- [ ] Animate transition between 2d and 3d mode
 
+- [X] Implement 3d mode
 - [X] Add download button to save current replay as file (makes sense when spectated via websocket)
 - [X] Show sensible error message when "Connect" fails
 - [X] Adjust turn delay values
