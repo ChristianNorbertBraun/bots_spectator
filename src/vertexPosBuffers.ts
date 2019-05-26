@@ -7,9 +7,9 @@ const torusOuterRadius = 1.0;
 const tmpVec = vec3.create();
 const origin = vec3.create();
 
-type PosFunc = (mapDim: Dimension, x: number, y: number) => vec3;
+type VecFunc = (mapDim: Dimension, x: number, y: number) => vec3;
 
-const createVertexPosBuffer = (posFunc: PosFunc) => (gl: WebGLRenderingContext, mapDim: Dimension): WebGLBuffer => {
+const createVertexBuffer = (posFunc: VecFunc) => (gl: WebGLRenderingContext, mapDim: Dimension): WebGLBuffer => {
     const buf = gl.createBuffer()!!;
     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     const data = new Float32Array(mapDim.width * mapDim.height * 4 * 3);
@@ -18,7 +18,6 @@ const createVertexPosBuffer = (posFunc: PosFunc) => (gl: WebGLRenderingContext, 
         data[index * 3] = v[0];
         data[index * 3 + 1] = v[1];
         data[index * 3 + 2] = v[2];
-        data[index * 3 + 3] = v[3];
     }
 
     for (let y = 0; y < mapDim.height; ++y) {
@@ -34,7 +33,7 @@ const createVertexPosBuffer = (posFunc: PosFunc) => (gl: WebGLRenderingContext, 
     return buf;
 };
 
-const torusPos: PosFunc = (mapDim: Dimension, x: number, y: number) => {
+const torusPos: VecFunc = (mapDim: Dimension, x: number, y: number) => {
     const normX = (2 * x / mapDim.width) - 1;
     const normY = (2 * y / mapDim.height) - 1;
     const v = vec3.set(tmpVec, 0, 0, (torusOuterRadius - torusInnerRadius) * 0.5);
@@ -44,11 +43,21 @@ const torusPos: PosFunc = (mapDim: Dimension, x: number, y: number) => {
     return v;
 };
 
-const planePos: PosFunc = (mapDim: Dimension, x: number, y: number) => {
+const torusNormal: VecFunc = (mapDim: Dimension, x: number, y: number) => {
+    const normX = (2 * x / mapDim.width) - 1;
+    const normY = (2 * y / mapDim.height) - 1;
+    const v = vec3.set(tmpVec, 0, 0, 1);
+    vec3.rotateY(v, v, origin, normX * Math.PI);
+    vec3.rotateZ(v, v, origin, normY * Math.PI);
+    return v;
+};
+
+const planePos: VecFunc = (mapDim: Dimension, x: number, y: number) => {
     const normX = (2 * x / mapDim.width) - 1;
     const normY = (2 * y / mapDim.height) - 1;
     return vec3.set(tmpVec, normX, normY, 0);
 };
 
-export const createTorusVertexPosBuffer: (gl: WebGLRenderingContext, mapDim: Dimension) => WebGLBuffer = createVertexPosBuffer(torusPos);
-export const createPlaneVertexPosBuffer: (gl: WebGLRenderingContext, mapDim: Dimension) => WebGLBuffer = createVertexPosBuffer(planePos);
+export const createTorusPosVertexBuffer: (gl: WebGLRenderingContext, mapDim: Dimension) => WebGLBuffer = createVertexBuffer(torusPos);
+export const createTorusNormalVertexBuffer: (gl: WebGLRenderingContext, mapDim: Dimension) => WebGLBuffer = createVertexBuffer(torusNormal);
+export const createPlanePosVertexBuffer: (gl: WebGLRenderingContext, mapDim: Dimension) => WebGLBuffer = createVertexBuffer(planePos);

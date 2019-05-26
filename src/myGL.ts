@@ -40,7 +40,13 @@ const defaultTint = new Float32Array([1, 1, 1, 1]);
 
 const tmpMat4 = mat4.create();
 
-interface ProgramInfo {
+export interface MyGL {
+    gl: WebGLRenderingContext,
+    programInfo: ProgramInfo,
+    atlasTexture: WebGLTexture,
+}
+
+export interface ProgramInfo {
     program: WebGLProgram,
     uvBuffer: WebGLBuffer,
     posAttribLoc: number,
@@ -82,16 +88,9 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     };
 }
 
-export interface MyGL {
-    gl: WebGLRenderingContext,
-    programInfo: ProgramInfo,
-    texture: WebGLTexture,
-    initFrame: (rotation: { x: number, y: number },) => void,
-}
-
 export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
     const atlas = await loadAtlas();
-    const texture = createTextureFrom(gl, atlas);
+    const atlasTexture = createTextureFrom(gl, atlas);
     const program = gl.createProgram()!!;
     gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource));
     gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource));
@@ -110,26 +109,26 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
 
     return {
         gl,
-        texture,
         programInfo,
-        initFrame: (rotation: { x: number, y: number },) => initFrame(gl, programInfo, texture, rotation),
+        atlasTexture,
     };
 }
 
-function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture, rotation: { x: number, y: number },) {
-    resize(gl, pi, rotation);
+export function initFrame(myGL: MyGL, rotation: { x: number, y: number },) {
+    const {gl, programInfo} = myGL;
+    resize(gl, programInfo, rotation);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.useProgram(pi.program);
+    gl.useProgram(programInfo.program);
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.uniform1i(pi.textureUniformLoc, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, pi.uvBuffer);
+    gl.bindTexture(gl.TEXTURE_2D, myGL.atlasTexture);
+    gl.uniform1i(programInfo.textureUniformLoc, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, programInfo.uvBuffer);
 }
 
 function createTextureFrom(gl: WebGLRenderingContext, image: HTMLImageElement): WebGLTexture {
     const id = gl.createTexture()!!;
     if (id < 1) {
-        throw Error("Failed to create texture");
+        throw Error("Failed to create atlasTexture");
     }
     gl.bindTexture(gl.TEXTURE_2D, id);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
@@ -183,12 +182,13 @@ function calcUvCoords(atlas: HTMLImageElement): number[] {
     return coords;
 }
 
-export function drawSprite(gl: WebGLRenderingContext, pi: ProgramInfo, vertexPosBuffer: WebGLBuffer, mapDim: Dimension, sprite: number, tilePos: Point, tint: Float32Array = defaultTint) {
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
-    gl.vertexAttribPointer(pi.posAttribLoc, 3, gl.FLOAT, false, 0, (tilePos.y * mapDim.width + tilePos.x) * 4 * 3 * 4);
-    gl.bindBuffer(gl.ARRAY_BUFFER, pi.uvBuffer);
-    gl.vertexAttribPointer(pi.uvAttribLoc, 2, gl.FLOAT, false, 0, sprite << 5);
-    gl.vertexAttrib4fv(pi.tintAttribLoc, tint);
+export function drawSprite(myGL: MyGL, posVertexBuffer: WebGLBuffer, mapDim: Dimension, sprite: number, tilePos: Point, tint: Float32Array = defaultTint) {
+    const {gl, programInfo} = myGL;
+    gl.bindBuffer(gl.ARRAY_BUFFER, posVertexBuffer);
+    gl.vertexAttribPointer(programInfo.posAttribLoc, 3, gl.FLOAT, false, 0, (tilePos.y * mapDim.width + tilePos.x) * 4 * 3 * 4);
+    gl.bindBuffer(gl.ARRAY_BUFFER, programInfo.uvBuffer);
+    gl.vertexAttribPointer(programInfo.uvAttribLoc, 2, gl.FLOAT, false, 0, sprite << 5);
+    gl.vertexAttrib4fv(programInfo.tintAttribLoc, tint);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
