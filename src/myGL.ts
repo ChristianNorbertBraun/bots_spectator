@@ -182,15 +182,17 @@ function calcUvCoords(atlas: HTMLImageElement): number[] {
     return coords;
 }
 
-export function drawSprite(myGL: MyGL, posVertexBuffer: WebGLBuffer, mapDim: Dimension, sprite: number, tilePos: Point, tint: Float32Array = defaultTint) {
+export type DrawSpriteFunc = (sprite: number, pos: Point, tint?: Float32Array) => void;
+
+export const drawSprite = (myGL: MyGL, mapDim: Dimension, posVertexBuffer: WebGLBuffer): DrawSpriteFunc => (sprite: number, pos: Point, tint: Float32Array = defaultTint) => {
     const {gl, programInfo} = myGL;
     gl.bindBuffer(gl.ARRAY_BUFFER, posVertexBuffer);
-    gl.vertexAttribPointer(programInfo.posAttribLoc, 3, gl.FLOAT, false, 0, (tilePos.y * mapDim.width + tilePos.x) * 4 * 3 * 4);
+    gl.vertexAttribPointer(programInfo.posAttribLoc, 3, gl.FLOAT, false, 0, (pos.y * mapDim.width + pos.x) * 4 * 3 * 4);
     gl.bindBuffer(gl.ARRAY_BUFFER, programInfo.uvBuffer);
     gl.vertexAttribPointer(programInfo.uvAttribLoc, 2, gl.FLOAT, false, 0, sprite << 5);
     gl.vertexAttrib4fv(programInfo.tintAttribLoc, tint);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-}
+};
 
 function resize(gl: WebGLRenderingContext, pi: ProgramInfo, rotation: { x: number, y: number },) {
     const canvasWidth = gl.canvas.clientWidth;
