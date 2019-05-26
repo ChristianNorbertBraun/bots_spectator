@@ -6,6 +6,7 @@ TODO
 - [ ] Highlight view radius of current turn (to differentiate it from previous turns)
 - [ ] Animate sprites so they move smoothly between turns
 - [ ] Show sensible error message when loaded replay file is obviously corrupt
+- [ ] Update favicon + page title
 
 - [X] Add download button to save current replay as file (makes sense when spectated via websocket)
 - [X] Show sensible error message when "Connect" fails
