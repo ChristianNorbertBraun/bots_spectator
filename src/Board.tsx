@@ -11,6 +11,8 @@ const orientations = "^v><";
 const useStyles = makeStyles({
     root: {
         flexGrow: 1,
+        // This is important, otherwise the browser will cancel pointermove events
+        touchAction: 'none',
     },
 });
 
@@ -156,7 +158,7 @@ export const Board = (props: {
     return (
         <div className={styles.root}>
             <canvas
-                onMouseMove={ev => {
+                onPointerMove={ev => {
                     if (ev.buttons !== 0 && props.mode3d) {
                         const mx = ev.movementY * rotationSpeed;
                         const my = ev.movementX * rotationSpeed;
