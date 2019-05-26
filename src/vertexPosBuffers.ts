@@ -2,7 +2,7 @@ import {Dimension} from "./geom";
 import {vec3} from "gl-matrix";
 
 const torusInnerRadius = 0.5;
-const torusOuterRadius = 1.0;
+const torusOuterRadius = 1.2; // This size still fits nicely in the view
 
 const tmpVec = vec3.create();
 const origin = vec3.create();

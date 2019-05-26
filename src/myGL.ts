@@ -5,14 +5,18 @@ import {Dimension, Point} from "./geom";
 
 const vertexShaderSource = `
 attribute vec3 a_pos;
+attribute vec3 a_normal;
 attribute vec2 a_uv;
 attribute vec4 a_tint;
-uniform mat4 u_perspective;
+uniform mat4 u_mv;
+uniform mat4 u_mvp;
+varying vec3 v_normal;
 varying vec2 v_uv;
 varying vec4 v_tint;
 
 void main() {
-  gl_Position = u_perspective * vec4(a_pos, 1.);
+  gl_Position = u_mvp * vec4(a_pos, 1.);
+  v_normal = vec3(u_mv * vec4(a_normal, 0.0));
   v_uv = a_uv;
   v_tint = a_tint;
 }
@@ -25,6 +29,7 @@ precision highp float;
 precision mediump float;
 #endif
 
+varying vec3 v_normal;
 varying vec2 v_uv;
 varying vec4 v_tint;
 uniform sampler2D u_texture;
@@ -33,12 +38,16 @@ void main() {
   gl_FragColor = texture2D(u_texture, v_uv.st).rgba;
   gl_FragColor.rgb *= v_tint.rgb;
   gl_FragColor *= v_tint.a;
+  float diffuse = dot(v_normal, vec3(0,0,1));
+  float ambient = 0.2;
+  gl_FragColor.rgb *= diffuse * 0.8 + ambient;
 }
 `;
 
 const defaultTint = new Float32Array([1, 1, 1, 1]);
 
-const tmpMat4 = mat4.create();
+const mat4Tmp1 = mat4.create();
+const mat4Tmp2 = mat4.create();
 
 export interface MyGL {
     gl: WebGLRenderingContext,
@@ -50,9 +59,11 @@ export interface ProgramInfo {
     program: WebGLProgram,
     uvBuffer: WebGLBuffer,
     posAttribLoc: number,
+    normalAttribLoc: number,
     uvAttribLoc: number,
     tintAttribLoc: number,
-    perspectiveUniformLoc: WebGLUniformLocation,
+    mvUniformLoc: WebGLUniformLocation,
+    mvpUniformLoc: WebGLUniformLocation,
     textureUniformLoc: WebGLUniformLocation,
 }
 
@@ -60,12 +71,13 @@ function compileShader(gl: WebGLRenderingContext, type: GLenum, src: string) {
     const shader = gl.createShader(type)!!;
     gl.shaderSource(shader, src);
     gl.compileShader(shader);
-    return shader
+    return shader;
 }
 
 function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HTMLImageElement): ProgramInfo {
     const posAttribLoc = gl.getAttribLocation(program, 'a_pos');
     gl.enableVertexAttribArray(posAttribLoc);
+    const normalAttribLoc = gl.getAttribLocation(program, 'a_normal');
 
     const uvBuffer = gl.createBuffer()!!;
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
@@ -75,15 +87,18 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     gl.enableVertexAttribArray(uvAttribLoc);
     const tintAttribLoc = gl.getAttribLocation(program, "a_tint");
 
-    const perspectiveUniformLoc = gl.getUniformLocation(program, 'u_perspective')!!;
+    const mvUniformLoc = gl.getUniformLocation(program, 'u_mv')!!;
+    const mvpUniformLoc = gl.getUniformLocation(program, 'u_mvp')!!;
     const textureUniformLoc = gl.getUniformLocation(program, 'u_texture')!!;
     return {
         program,
         uvBuffer,
         posAttribLoc,
+        normalAttribLoc,
         uvAttribLoc,
         tintAttribLoc,
-        perspectiveUniformLoc,
+        mvUniformLoc,
+        mvpUniformLoc,
         textureUniformLoc,
     };
 }
@@ -182,12 +197,27 @@ function calcUvCoords(atlas: HTMLImageElement): number[] {
     return coords;
 }
 
+const planeNormal = new Float32Array([0, 0, 1]);
+
 export type DrawSpriteFunc = (sprite: number, pos: Point, tint?: Float32Array) => void;
 
-export const drawSprite = (myGL: MyGL, mapDim: Dimension, posVertexBuffer: WebGLBuffer): DrawSpriteFunc => (sprite: number, pos: Point, tint: Float32Array = defaultTint) => {
+export const drawSprite = (
+    myGL: MyGL,
+    mapDim: Dimension,
+    posVertexBuffer: WebGLBuffer,
+    normalVertexBuffer?: WebGLBuffer,
+): DrawSpriteFunc => (sprite: number, pos: Point, tint: Float32Array = defaultTint) => {
     const {gl, programInfo} = myGL;
     gl.bindBuffer(gl.ARRAY_BUFFER, posVertexBuffer);
     gl.vertexAttribPointer(programInfo.posAttribLoc, 3, gl.FLOAT, false, 0, (pos.y * mapDim.width + pos.x) * 4 * 3 * 4);
+    if (normalVertexBuffer) {
+        gl.enableVertexAttribArray(programInfo.normalAttribLoc);
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalVertexBuffer);
+        gl.vertexAttribPointer(programInfo.normalAttribLoc, 3, gl.FLOAT, false, 0, (pos.y * mapDim.width + pos.x) * 4 * 3 * 4);
+    } else {
+        gl.disableVertexAttribArray(programInfo.normalAttribLoc);
+        gl.vertexAttrib3fv(programInfo.normalAttribLoc, planeNormal);
+    }
     gl.bindBuffer(gl.ARRAY_BUFFER, programInfo.uvBuffer);
     gl.vertexAttribPointer(programInfo.uvAttribLoc, 2, gl.FLOAT, false, 0, sprite << 5);
     gl.vertexAttrib4fv(programInfo.tintAttribLoc, tint);
@@ -204,9 +234,14 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo, rotation: { x: numbe
     const x = canvasWidth > canvasHeight ? canvasWidth / canvasHeight : 1.0;
     const y = canvasHeight > canvasWidth ? canvasHeight / canvasWidth : 1.0;
 
-    const perspective = mat4.identity(tmpMat4);
+    const mv = mat4.identity(mat4Tmp1);
+    mat4.rotateX(mv, mv, rotation.x);
+    mat4.rotateY(mv, mv, rotation.y);
+    gl.uniformMatrix4fv(pi.mvUniformLoc, false, mv);
+
+    const mvp = mat4.identity(mat4Tmp2);
     mat4.ortho(
-        perspective,
+        mvp,
         -x,
         x,
         -y,
@@ -214,8 +249,6 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo, rotation: { x: numbe
         -10,
         10,
     );
-
-    mat4.rotateX(perspective, perspective, rotation.x);
-    mat4.rotateY(perspective, perspective, rotation.y);
-    gl.uniformMatrix4fv(pi.perspectiveUniformLoc, false, perspective);
+    mat4.mul(mvp, mvp, mv);
+    gl.uniformMatrix4fv(pi.mvpUniformLoc, false, mvp);
 }
