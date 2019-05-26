@@ -1,7 +1,7 @@
 import {mat4} from "gl-matrix";
 import {paletteColor5} from "./palette";
 import chroma from "chroma-js";
-import {Dimension, Point, Rect} from "./geom";
+import {Dimension, Point} from "./geom";
 
 const vertexShaderSource = `
 attribute vec3 a_pos;
@@ -86,7 +86,7 @@ export interface MyGL {
     gl: WebGLRenderingContext,
     programInfo: ProgramInfo,
     texture: WebGLTexture,
-    initFrame: (mapDim: Dimension) => void,
+    initFrame: (rotation: { x: number, y: number },) => void,
 }
 
 export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
@@ -112,15 +112,12 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
         gl,
         texture,
         programInfo,
-        initFrame: (mapDim: Dimension) => initFrame(gl, programInfo, texture, mapDim),
+        initFrame: (rotation: { x: number, y: number },) => initFrame(gl, programInfo, texture, rotation),
     };
 }
 
-function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture, mapDim: Dimension) {
-    const worldRect = {
-        x: 0, y: 0, width: mapDim.width, height: mapDim.height,
-    };
-    resize(gl, pi, worldRect);
+function initFrame(gl: WebGLRenderingContext, pi: ProgramInfo, texture: WebGLTexture, rotation: { x: number, y: number },) {
+    resize(gl, pi, rotation);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(pi.program);
     gl.activeTexture(gl.TEXTURE0);
@@ -195,7 +192,7 @@ export function drawSprite(gl: WebGLRenderingContext, pi: ProgramInfo, vertexPos
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
-function resize(gl: WebGLRenderingContext, pi: ProgramInfo, worldRect: Rect) {
+function resize(gl: WebGLRenderingContext, pi: ProgramInfo, rotation: { x: number, y: number },) {
     const canvasWidth = gl.canvas.clientWidth;
     const canvasHeight = gl.canvas.clientHeight;
     gl.canvas.width = canvasWidth;
@@ -216,5 +213,7 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo, worldRect: Rect) {
         10,
     );
 
+    mat4.rotateX(perspective, perspective, rotation.x);
+    mat4.rotateY(perspective, perspective, rotation.y);
     gl.uniformMatrix4fv(pi.perspectiveUniformLoc, false, perspective);
 }

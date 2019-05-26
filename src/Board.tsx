@@ -31,6 +31,7 @@ function renderFrame(props: {
     myGL: MyGL,
     vertexPosBuffer: WebGLBuffer,
     replay: Replay,
+    rotation: { x: number, y: number },
     currentTurnIndex: number,
     tracedPlayers: number[],
 }) {
@@ -38,7 +39,7 @@ function renderFrame(props: {
     const mapDim: Dimension = {
         width: props.replay.map_width, height: props.replay.map_height,
     };
-    myGL.initFrame(mapDim);
+    myGL.initFrame(props.rotation);
 
     if (props.replay.turns.length <= props.currentTurnIndex) {
         return;
@@ -102,6 +103,8 @@ function renderFrame(props: {
     }
 }
 
+const rotationSpeed = 0.05;
+
 export const Board = (props: {
     replay: Replay,
     currentTurnIndex: number,
@@ -113,6 +116,7 @@ export const Board = (props: {
     const [myGL, setMyGL] = useState<MyGL>();
     const torusVertexPosBuffer = useRef<WebGLBuffer | null>(null);
     const planeVertexPosBuffer = useRef<WebGLBuffer | null>(null);
+    const [rotation, setRotation] = useState({x: 0, y: 0});
     useWindowSize(); // This dependencies triggers a re-render when the window size changes
 
     useEffect(() => {
@@ -141,12 +145,29 @@ export const Board = (props: {
     useEffect(() => {
         if (myGL === undefined) return;
         const vertexPosBuffer = props.mode3d ? torusVertexPosBuffer.current!! : planeVertexPosBuffer.current!!;
-        renderFrame({myGL, vertexPosBuffer, ...props,});
+        renderFrame({
+            myGL,
+            vertexPosBuffer,
+            rotation: props.mode3d ? rotation : {x: 0, y: 0},
+            ...props,
+        });
     });
 
     return (
         <div className={styles.root}>
             <canvas
+                onMouseMove={ev => {
+                    if (ev.buttons !== 0 && props.mode3d) {
+                        const mx = ev.movementY * rotationSpeed;
+                        const my = ev.movementX * rotationSpeed;
+                        setRotation((rot) => {
+                            return {
+                                x: rot.x + mx,
+                                y: rot.y + my,
+                            }
+                        })
+                    }
+                }}
                 ref={canvasRef}
                 style={{
                     width: "100%",
