@@ -8,6 +8,8 @@ export interface Dimension {
     height: number;
 }
 
+export const isEqualDimension = (a: Dimension, b: Dimension) => a.width === b.width && a.height === b.height;
+
 export interface Rect {
     x: number;
     y: number;

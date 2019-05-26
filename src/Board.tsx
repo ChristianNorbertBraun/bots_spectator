@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {createMyGL, drawSprite, DrawSpriteFunc, initFrame, MyGL} from "./myGL";
 import {bombWorldSpritePicker, pickMonsterSprite, pickPlayerSpriteStart} from "./SpritePicker"
 import {makeStyles} from "@material-ui/styles";
-import {Dimension} from "./geom";
+import {Dimension, isEqualDimension} from "./geom";
 import {
     createPlanePosVertexBuffer,
     createTorusNormalVertexBuffer,
@@ -108,6 +108,13 @@ function renderFrame(props: {
 
 const rotationSpeed = 0.05;
 
+interface PerMapVertexBuffers {
+    mapDim: Dimension,
+    torusPosVertexBuffer: WebGLBuffer,
+    torusNormalVertexBuffer: WebGLBuffer,
+    planePosVertexBuffer: WebGLBuffer,
+};
+
 export const Board = (props: {
     replay: Replay,
     currentTurnIndex: number,
@@ -117,9 +124,7 @@ export const Board = (props: {
     const styles = useStyles();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [myGL, setMyGL] = useState<MyGL>();
-    const torusPosVertexBuffer = useRef<WebGLBuffer | null>(null);
-    const torusNormalVertexBuffer = useRef<WebGLBuffer | null>(null);
-    const planePosVertexBuffer = useRef<WebGLBuffer | null>(null);
+    const perMapVertexBuffers = useRef<PerMapVertexBuffers | null>(null);
     const [rotation, setRotation] = useState({x: 0, y: 0});
     useWindowSize(); // This dependencies triggers a re-render when the window size changes
 
@@ -141,10 +146,14 @@ export const Board = (props: {
         const mapDim: Dimension = {
             width: props.replay.map_width, height: props.replay.map_height,
         };
+        if (perMapVertexBuffers.current && isEqualDimension(perMapVertexBuffers.current.mapDim, mapDim)) return;
         console.log(`Recreating vertex pos buffer for map dims: ${mapDim}`);
-        torusPosVertexBuffer.current = createTorusPosVertexBuffer(myGL!!.gl, mapDim);
-        torusNormalVertexBuffer.current = createTorusNormalVertexBuffer(myGL!!.gl, mapDim);
-        planePosVertexBuffer.current = createPlanePosVertexBuffer(myGL!!.gl, mapDim);
+        perMapVertexBuffers.current = {
+            mapDim,
+            planePosVertexBuffer: createPlanePosVertexBuffer(myGL!!.gl, mapDim),
+            torusNormalVertexBuffer: createTorusNormalVertexBuffer(myGL!!.gl, mapDim),
+            torusPosVertexBuffer: createTorusPosVertexBuffer(myGL!!.gl, mapDim)
+        };
     }, [props.replay, myGL]);
 
     useEffect(() => {
@@ -152,9 +161,10 @@ export const Board = (props: {
         const mapDim: Dimension = {
             width: props.replay.map_width, height: props.replay.map_height,
         };
+        const b = perMapVertexBuffers.current!!;
         const drawSpriteFunc = props.mode3d
-            ? drawSprite(myGL, mapDim, torusPosVertexBuffer.current!!, torusNormalVertexBuffer.current!!)
-            : drawSprite(myGL, mapDim, planePosVertexBuffer.current!!);
+            ? drawSprite(myGL, mapDim, b.torusPosVertexBuffer, b.torusNormalVertexBuffer)
+            : drawSprite(myGL, mapDim, b.planePosVertexBuffer);
         renderFrame({
             myGL,
             drawSprite: drawSpriteFunc,
