@@ -1,4 +1,11 @@
-export type SpritePicker = (c: string, x: number, y: number) => number[];
+export interface PickerResult {
+    spriteIndex: number;
+    tint?: Float32Array;
+}
+
+export type SpritePicker = (c: string, x: number, y: number) => PickerResult[];
+
+const monsterTint = new Float32Array([0, 2.0, 0, 1]);
 
 const bombChars = "987654321";
 const playerChars = "ABCDEFGHIJKLMNOP";
@@ -8,30 +15,29 @@ const obsticleChars = "#X~";
 const portalChars = "o&";
 
 const chain = (pickers: SpritePicker[]): SpritePicker => {
-    return (c:string, x: number, y: number): number[] => {
+    return (c: string, x: number, y: number): PickerResult[] => {
         for (const picker of pickers) {
             const result = picker(c, x, y);
             if (result.length !== 0) {
                 return result;
             }
         }
-
         return [];
     }
-}
+};
 
 const pickBombSprite: SpritePicker = (c, x, y) => {
     const index = bombChars.indexOf(c);
     if (index === -1) {
         return [];
     }
-    return [8 + index];
+    return [{spriteIndex: 8 + index}];
 };
 
 const pickFlatlandSprite: SpritePicker = (c, x, y) => {
     const monsterOrPlayerIndex = (playerChars + monsterChars).indexOf(c)
     if (c === '.' || monsterOrPlayerIndex !== -1) {
-        return [(x + y) % 2];
+        return [{spriteIndex: (x + y) % 2}];
     }
     return [];
 };
@@ -41,48 +47,51 @@ const pickObsticleSprite: SpritePicker = (c, x, y) => {
     if (index === -1) {
         return [];
     }
-    return [2 + index];
+    return [{spriteIndex: 2 + index}];
 };
 
 const pickPowerUpSprite: SpritePicker = (c, x, y) => {
     if (c === '+') {
-        return [113];
+        return [{spriteIndex: 113}];
     }
     return [];
 };
 
 export const pickMonsterSprite: SpritePicker = (c, x, y) => {
     if (c === 'e') {
-        return pickFlatlandSprite(c, x, y).concat(112);
+        return pickFlatlandSprite(c, x, y).concat({
+            spriteIndex: 112,
+            tint: monsterTint,
+        });
     }
     return [];
 }
 
 const pickLetterSprite: SpritePicker = (c, x, y) => {
     const index = letterChars.indexOf(c);
-    if(index === -1) {
+    if (index === -1) {
         return [];
     }
-    return [17 + index];
+    return [{spriteIndex: 17 + index}];
 }
 
 const pickPortalSprite: SpritePicker = (c, x, y) => {
     if (portalChars.indexOf(c) === -1) {
         return [];
     }
-    return [6];
+    return [{spriteIndex: 6}];
 }
 
 const pickGemSprite: SpritePicker = (c, x, y) => {
     if (c === '@') {
-        return [5];
+        return [{spriteIndex: 5}];
     }
     return [];
 };
 
 const pickSnakeTailSprite: SpritePicker = (c, x, y) => {
     if (c === '*') {
-        return [7];
+        return [{spriteIndex: 7}];
     }
     return [];
 };
@@ -97,5 +106,5 @@ export const pickPlayerSpriteStart: SpritePicker = (c, x, y) => {
     if (index === -1) {
         return [];
     }
-    return [48 + index * 4];
+    return [{spriteIndex: 48 + index * 4}];
 };

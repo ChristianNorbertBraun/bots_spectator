@@ -1,7 +1,14 @@
-import {Replay, GameMode} from "./replay";
+import {GameMode, Replay} from "./replay";
 import React, {useEffect, useRef, useState} from "react";
 import {createMyGL, drawSprite, DrawSpriteFunc, initFrame, MyGL} from "./myGL";
-import {hordeSpritePicker, pickPlayerSpriteStart, defaultSpritePicker, SpritePicker, bombSpritePicker, wordSpritePicker} from "./SpritePicker"
+import {
+    bombSpritePicker,
+    defaultSpritePicker,
+    hordeSpritePicker,
+    pickPlayerSpriteStart,
+    SpritePicker,
+    wordSpritePicker
+} from "./SpritePicker"
 import {makeStyles} from "@material-ui/styles";
 import {Dimension, isEqualDimension} from "./geom";
 import {
@@ -86,9 +93,8 @@ function renderFrame(props: {
             const index = x + yy * props.replay.map_width;
             const c = turn.map.charAt(index);
             const tint = exploredFields[index] ? exploredTint : undefined;
-
-            for (const spriteIndex of props.spritePicker(c, x, y)) {
-                props.drawSprite(spriteIndex!!, pos, tint);
+            for (const r of props.spritePicker(c, x, y)) {
+                props.drawSprite(r.spriteIndex, pos, r.tint || tint);
             }
         }
     }
@@ -103,8 +109,8 @@ function renderFrame(props: {
             const orientationOffset = orientations.indexOf(player.bearing);
             const y = props.replay.map_height - player.y - 1;
             const pos = {x: player.x, y};
-            const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y)[0];
-            props.drawSprite(playerSpriteStartIndex!! + orientationOffset, pos, traceTint);
+            const playerSprite = pickPlayerSpriteStart(player.name, player.x, player.y)[0];
+            props.drawSprite(playerSprite.spriteIndex + orientationOffset, pos, traceTint);
         }
     }
 
@@ -112,11 +118,11 @@ function renderFrame(props: {
         if (player.life <= 0) {
             continue;
         }
-        const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y)[0];
+        const playerSprite = pickPlayerSpriteStart(player.name, player.x, player.y)[0];
         const orientationOffset = orientations.indexOf(player.bearing);
         const y = props.replay.map_height - player.y - 1;
         const pos = {x: player.x, y};
-        props.drawSprite(playerSpriteStartIndex!! + orientationOffset, pos);
+        props.drawSprite(playerSprite.spriteIndex + orientationOffset, pos);
     }
 }
 
