@@ -1,7 +1,9 @@
 TODO
 ====
 
-- [ ] Switch sprite picker on game mode
+- [ ] Show explosion for dying bots
+- [ ] Show winner in player table
+- [ ] Create replay file for every game mode for testing
 - [ ] Add input for start turn of trace
 - [ ] Highlight view radius of current turn (to differentiate it from previous turns)
 - [ ] Animate sprites so they move smoothly between turns
@@ -10,6 +12,7 @@ TODO
 - [ ] Add option to follow specific player (for 3d mode)
 - [ ] Animate transition between 2d and 3d mode
 
+- [X] Switch sprite picker on game mode
 - [X] Add nicer lighting for 3d mode
 - [X] Implement 3d mode
 - [X] Add download button to save current replay as file (makes sense when spectated via websocket)
