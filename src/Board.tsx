@@ -1,7 +1,7 @@
-import {Replay} from "./replay";
+import {Replay, GameMode} from "./replay";
 import React, {useEffect, useRef, useState} from "react";
 import {createMyGL, drawSprite, DrawSpriteFunc, initFrame, MyGL} from "./myGL";
-import {bombWorldSpritePicker, pickMonsterSprite, pickPlayerSpriteStart} from "./SpritePicker"
+import {hordeSpritePicker, pickPlayerSpriteStart, defaultSpritePicker, SpritePicker, bombSpritePicker, wordSpritePicker} from "./SpritePicker"
 import {makeStyles} from "@material-ui/styles";
 import {Dimension, isEqualDimension} from "./geom";
 import {
@@ -33,8 +33,27 @@ function setPlayerView(posx: number, posy: number, radius: number, mapWidth: num
     return set;
 }
 
+function pickSpritePickerFor(gameMode: GameMode): SpritePicker {
+    switch (gameMode) {
+        case GameMode.training:
+        case GameMode.escape:
+        case GameMode.collect:
+        case GameMode.snakes:
+        case GameMode.avoid:
+        case GameMode.rumble:
+            return defaultSpritePicker;
+        case GameMode.horde:
+            return hordeSpritePicker;
+        case GameMode.boom:
+            return bombSpritePicker;
+        case GameMode.word:
+            return wordSpritePicker;
+    }
+}
+
 function renderFrame(props: {
     myGL: MyGL,
+    spritePicker: SpritePicker,
     replay: Replay,
     rotation: { x: number, y: number },
     currentTurnIndex: number,
@@ -68,13 +87,8 @@ function renderFrame(props: {
             const c = turn.map.charAt(index);
             const tint = exploredFields[index] ? exploredTint : undefined;
 
-            const spriteIndex = bombWorldSpritePicker(c, x, y);
-            // const spriteIndex = hordeWorldSpritePicker(c, x, y);
-            props.drawSprite(spriteIndex!!, pos, tint);
-
-            const monsterSpriteIndex = pickMonsterSprite(c, x, y);
-            if (monsterSpriteIndex !== undefined) {
-                props.drawSprite(monsterSpriteIndex!!, pos, tint);
+            for (const spriteIndex of defaultSpritePicker(c, x, y)) {
+                myGL.drawSprite(spriteIndex!!, x, y, tint);
             }
         }
     }
@@ -88,9 +102,8 @@ function renderFrame(props: {
             let player = turn.players[i];
             const orientationOffset = orientations.indexOf(player.bearing);
             const y = props.replay.map_height - player.y - 1;
-            const pos = {x: player.x, y};
-            const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y);
-            props.drawSprite(playerSpriteStartIndex!! + orientationOffset, pos, traceTint);
+            const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y)[0];
+            myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y, traceTint);
         }
     }
 
@@ -98,7 +111,7 @@ function renderFrame(props: {
         if (player.life <= 0) {
             continue;
         }
-        const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y);
+        const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y)[0];
         const orientationOffset = orientations.indexOf(player.bearing);
         const y = props.replay.map_height - player.y - 1;
         const pos = {x: player.x, y};

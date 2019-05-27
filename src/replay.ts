@@ -15,7 +15,21 @@ export interface Player {
     score: number;
 }
 
+export enum GameMode {
+    training = "training",
+    escape = "escape",
+    collect = "collect",
+    snakes = "snakes",
+    rumble = "rumble",
+    avoid = "avoid",
+    word = "word",
+    boom = "boom",
+    horde = "horde"
+}
+
+
 export interface Header {
+    mode: GameMode;
     max_turns: number;
     map_width: number;
     map_height: number;
