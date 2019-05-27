@@ -27,7 +27,6 @@ export enum GameMode {
     horde = "horde"
 }
 
-
 export interface Header {
     mode: GameMode;
     max_turns: number;

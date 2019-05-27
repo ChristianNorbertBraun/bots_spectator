@@ -2,7 +2,6 @@ export type SpritePicker = (c: string, x: number, y: number) => number[];
 
 const bombChars = "987654321";
 const playerChars = "ABCDEFGHIJKLMNOP";
-const orientationChars = "^><v";
 const letterChars = "abcdefghijklmnopqrstuuwxyz";
 const monsterChars = "e";
 const obsticleChars = "#X~";
@@ -12,7 +11,7 @@ const chain = (pickers: SpritePicker[]): SpritePicker => {
     return (c:string, x: number, y: number): number[] => {
         for (const picker of pickers) {
             const result = picker(c, x, y);
-            if (result.length != 0) {
+            if (result.length !== 0) {
                 return result;
             }
         }
@@ -30,7 +29,7 @@ const pickBombSprite: SpritePicker = (c, x, y) => {
 };
 
 const pickFlatlandSprite: SpritePicker = (c, x, y) => {
-    const monsterOrPlayerIndex = (orientationChars + monsterChars).indexOf(c)
+    const monsterOrPlayerIndex = (playerChars + monsterChars).indexOf(c)
     if (c === '.' || monsterOrPlayerIndex !== -1) {
         return [(x + y) % 2];
     }
@@ -53,9 +52,8 @@ const pickPowerUpSprite: SpritePicker = (c, x, y) => {
 };
 
 export const pickMonsterSprite: SpritePicker = (c, x, y) => {
-    const flatlandSprite = pickFlatlandSprite(c, x, y)
-    if (c === 'e' && flatlandSprite !== undefined) {
-        return flatlandSprite.concat(112);
+    if (c === 'e') {
+        return pickFlatlandSprite(c, x, y).concat(112);
     }
     return [];
 }

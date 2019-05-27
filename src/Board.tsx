@@ -87,8 +87,8 @@ function renderFrame(props: {
             const c = turn.map.charAt(index);
             const tint = exploredFields[index] ? exploredTint : undefined;
 
-            for (const spriteIndex of defaultSpritePicker(c, x, y)) {
-                myGL.drawSprite(spriteIndex!!, x, y, tint);
+            for (const spriteIndex of props.spritePicker(c, x, y)) {
+                props.drawSprite(spriteIndex!!, pos, tint);
             }
         }
     }
@@ -102,8 +102,9 @@ function renderFrame(props: {
             let player = turn.players[i];
             const orientationOffset = orientations.indexOf(player.bearing);
             const y = props.replay.map_height - player.y - 1;
+            const pos = {x: player.x, y};
             const playerSpriteStartIndex = pickPlayerSpriteStart(player.name, player.x, player.y)[0];
-            myGL.drawSprite(playerSpriteStartIndex!! + orientationOffset, player.x, y, traceTint);
+            props.drawSprite(playerSpriteStartIndex!! + orientationOffset, pos, traceTint);
         }
     }
 
@@ -180,6 +181,7 @@ export const Board = (props: {
             : drawSprite(myGL, mapDim, b.planePosVertexBuffer);
         renderFrame({
             myGL,
+            spritePicker: pickSpritePickerFor(props.replay.mode),
             drawSprite: drawSpriteFunc,
             rotation: props.mode3d ? rotation : {x: 0, y: 0},
             ...props,
