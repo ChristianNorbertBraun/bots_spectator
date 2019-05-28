@@ -22,19 +22,12 @@ export const StatsTable = (props: {
     const [traceCurrent, setTraceCurrent] = useState<boolean>(false);
 
     useEffect(() => {
-        // Need to get reference here to help the linter tool `exhaustive-deps`
-        const setTraceStart = props.setTraceStart;
-        if (traceCurrent) {
-            setTraceStartInputValue(props.currentTurn.turn.toString(10));
-            setTraceStart(props.currentTurn.turn - 1);
-        } else {
-            setTraceStartInputValue(v => {
-                const t = parseInt(v, 10);
-                const t2 = isNaN(t) ? props.currentTurn.turn : Math.min(t, props.currentTurn.turn);
-                return t2.toString(10);
-            });
-        }
-    }, [props.currentTurn.turn, traceCurrent, props.setTraceStart]);
+        const t = traceCurrent ?
+            props.currentTurn.turn - 1
+            : Math.min(props.traceStart, props.currentTurn.turn - 1);
+        props.setTraceStart(t);
+        setTraceStartInputValue((t + 1).toString(10));
+    }, [props, traceCurrent]);
 
     // console.log(`StatsTable#render traceStartInputValue:${traceStartInputValue}, traceStart: ${props.traceStart}, currentTurn: ${props.currentTurn.turn}`);
     return <div
