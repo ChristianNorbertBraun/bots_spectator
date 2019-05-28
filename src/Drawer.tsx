@@ -1,4 +1,4 @@
-import {isFinished, parseReplay, Replay, Turn} from "./replay";
+import {isFinished, Replay, Turn} from "./replay";
 import React, {Dispatch, SetStateAction, useRef, useState} from "react";
 import {
     Button,
@@ -43,7 +43,7 @@ export const Drawer = (props: {
     setTracedPlayers: Dispatch<SetStateAction<number[]>>,
     onConnectWebsocket: (url: string) => Promise<void>,
     onCloseWebsocket: () => void,
-    onReplayFileUploaded: (replay: Replay) => void,
+    onReplayFileUploaded: (content: string) => void,
     mode3d: boolean,
     setMode3d: (mode3d: boolean) => void,
 }) => {
@@ -75,8 +75,7 @@ export const Drawer = (props: {
                         const file: File = e.target.files[0];
                         e.target.value = ''; // Reset value, so user may upload the same filename again
                         const content = await readFileContents(file);
-                        const replay = parseReplay(content);
-                        props.onReplayFileUploaded(replay);
+                        props.onReplayFileUploaded(content);
                     }
 
                 }}

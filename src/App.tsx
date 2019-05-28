@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Header, Replay, Results, Turn} from "./replay";
+import {Header, parseReplay, Replay, Results, Turn} from "./replay";
 import {Drawer} from "./Drawer";
 import {Board} from "./Board";
-import {createMuiTheme, CssBaseline, Dialog, DialogTitle} from "@material-ui/core";
+import {createMuiTheme, CssBaseline, Dialog, DialogTitle, Slide} from "@material-ui/core";
 import {makeStyles, ThemeProvider} from "@material-ui/styles";
 import {paletteColor0, paletteColor2, paletteColor3, paletteColor5} from "./palette";
 import {ErrorMessage, isErrorMessage} from "./errors";
+import {TransitionProps} from "@material-ui/core/transitions";
 
 const theme = createMuiTheme({
     palette: {
@@ -39,13 +40,17 @@ const useStyles = makeStyles({
     },
 });
 
-async function tryToLoadReplayFromUrl(): Promise<Replay | undefined> {
+async function tryToLoadReplayFromUrl(): Promise<string | undefined> {
     const params = new URLSearchParams(document.location.search);
     const replayUrl = params.get('replay_url');
     if (!replayUrl) return undefined;
     const response = await fetch(replayUrl);
-    return response.json();
+    return response.text();
 }
+
+const ErrorDialogTransition = React.forwardRef<unknown, TransitionProps>(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export const App: React.FC = () => {
     const styles = useStyles();
@@ -56,8 +61,24 @@ export const App: React.FC = () => {
     const [mode3d, setMode3d] = useState<boolean>(false);
     const [error, setError] = useState<string | undefined>(undefined);
 
+    const handleReplay = (content: string) => {
+        const r = parseReplay(content);
+        if (typeof r === "string") {
+            setError(r);
+        } else {
+            setWebSocket(ws => {
+                if (ws) ws.close();
+                return undefined;
+            });
+            setCurrentTurnIndex(0);
+            setReplay(r);
+        }
+    };
+
     useEffect(() => {
-        tryToLoadReplayFromUrl().then(setReplay);
+        tryToLoadReplayFromUrl().then(s => {
+            if (s) handleReplay(s);
+        });
     }, []);
 
     return (
@@ -66,6 +87,7 @@ export const App: React.FC = () => {
             <Dialog
                 open={error !== undefined}
                 onClose={() => setError(undefined)}
+                TransitionComponent={ErrorDialogTransition}
             >
                 <DialogTitle>
                     {error}
@@ -126,16 +148,7 @@ export const App: React.FC = () => {
                             return undefined;
                         })
                     }
-                    onReplayFileUploaded={replay => {
-                        setWebSocket(ws => {
-                            if (ws) {
-                                ws.close();
-                            }
-                            return undefined;
-                        });
-                        setCurrentTurnIndex(0);
-                        setReplay(replay);
-                    }}
+                    onReplayFileUploaded={handleReplay}
                 />
             </div>
         </ThemeProvider>

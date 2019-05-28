@@ -7,11 +7,11 @@ TODO
 - [ ] Add input for start turn of trace
 - [ ] Highlight view radius of current turn (to differentiate it from previous turns)
 - [ ] Animate sprites so they move smoothly between turns
-- [ ] Show sensible error message when loaded replay file is obviously corrupt
 - [ ] Update favicon + page title
 - [ ] Add option to follow specific player (for 3d mode)
 - [ ] Animate transition between 2d and 3d mode
 
+- [X] Show sensible error message when loaded replay file is obviously corrupt
 - [X] Switch sprite picker on game mode
 - [X] Add nicer lighting for 3d mode
 - [X] Implement 3d mode

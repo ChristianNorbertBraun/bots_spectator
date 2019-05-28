@@ -55,6 +55,14 @@ export interface Results {
 
 export const isFinished = (replay: Replay) => replay.results.length > 0;
 
-export function parseReplay(content: string): Replay {
-    return JSON.parse(content);
+export function parseReplay(content: string): Replay | string {
+    try {
+        const replay = JSON.parse(content);
+        if (!replay.mode) {
+            return "Replay is missing `mode` field - it's probably from an old bots version.";
+        }
+        return replay;
+    } catch (e) {
+        return e.toString();
+    }
 }
