@@ -65,6 +65,7 @@ function renderFrame(props: {
     rotation: { x: number, y: number },
     currentTurnIndex: number,
     tracedPlayers: number[],
+    traceStart: number,
     drawSprite: DrawSpriteFunc,
 }) {
     const {myGL} = props;
@@ -77,7 +78,7 @@ function renderFrame(props: {
 
     const exploredTint = new Float32Array([1.5, 1.5, 1.5, 1]);
     const exploredFields = new Array(props.replay.map_width * props.replay.map_height).fill(false);
-    for (let turnIndex = 0; turnIndex <= props.currentTurnIndex; ++turnIndex) {
+    for (let turnIndex = props.traceStart; turnIndex <= props.currentTurnIndex; ++turnIndex) {
         const turn = props.replay.turns[turnIndex];
         for (let i = 0; i < turn.players.length; ++i) {
             if (props.tracedPlayers.indexOf(i) < 0) continue;
@@ -101,7 +102,7 @@ function renderFrame(props: {
 
     // Draw traces
     const traceTint = new Float32Array([1, 1, 1, 0.3]);
-    for (let turnIndex = 0; turnIndex < props.currentTurnIndex; ++turnIndex) {
+    for (let turnIndex = props.traceStart; turnIndex < props.currentTurnIndex; ++turnIndex) {
         const turn = props.replay.turns[turnIndex];
         for (let i = 0; i < turn.players.length; ++i) {
             if (props.tracedPlayers.indexOf(i) < 0) continue;
@@ -140,6 +141,7 @@ export const Board = (props: {
     currentTurnIndex: number,
     tracedPlayers: number[],
     mode3d: boolean,
+    traceStart: number,
 }) => {
     const styles = useStyles();
     const canvasRef = useRef<HTMLCanvasElement>(null);

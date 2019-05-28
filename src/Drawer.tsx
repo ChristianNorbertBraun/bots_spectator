@@ -36,6 +36,8 @@ export const Drawer = (props: {
     onReplayFileUploaded: (content: string) => void,
     mode3d: boolean,
     setMode3d: (mode3d: boolean) => void,
+    traceStart: number,
+    setTraceStart: Dispatch<SetStateAction<number>>,
 }) => {
     const addressInputRef = useRef<HTMLInputElement>(null);
 
@@ -136,6 +138,8 @@ export const Drawer = (props: {
                 currentTurn={currentTurn}
                 tracedPlayers={props.tracedPlayers}
                 setTracedPlayers={props.setTracedPlayers}
+                traceStart={props.traceStart}
+                setTraceStart={props.setTraceStart}
             />
             }
             {props.replay && isFinished(props.replay) &&
