@@ -9,6 +9,7 @@ TODO
 - [ ] Update favicon + page title
 - [ ] Add option to follow specific player (for 3d mode)
 - [ ] Animate transition between 2d and 3d mode
+- [ ] Add a welcome message when no replay is loaded yet, maybe the image of the flyer
 
 - [X] Add input for start turn of trace
 - [X] Show sensible error message when loaded replay file is obviously corrupt
