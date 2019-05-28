@@ -1,21 +1,11 @@
-import {isFinished, Replay, Turn} from "./replay";
+import {isFinished, Replay} from "./replay";
 import React, {Dispatch, SetStateAction, useRef, useState} from "react";
-import {
-    Button,
-    Checkbox,
-    Drawer as MuiDrawer,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
-    TextField,
-    Typography
-} from "@material-ui/core";
+import {Button, Drawer as MuiDrawer, TextField, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
 import {paletteColor3} from "./palette";
 import {TurnControls} from "./TurnControls";
 import * as FileSaver from 'file-saver';
+import {StatsTable} from "./StatsTable";
 
 const drawerWidth = 320;
 
@@ -142,7 +132,7 @@ export const Drawer = (props: {
             />
             }
             {currentTurn &&
-            <PlayerTable
+            <StatsTable
                 currentTurn={currentTurn}
                 tracedPlayers={props.tracedPlayers}
                 setTracedPlayers={props.setTracedPlayers}
@@ -165,51 +155,6 @@ export const Drawer = (props: {
             }
         </MuiDrawer>
     );
-};
-
-const PlayerTable = (props: {
-    currentTurn: Turn,
-    tracedPlayers: number[],
-    setTracedPlayers: Dispatch<SetStateAction<number[]>>,
-}) => {
-    return <Table
-        padding="none"
-        style={{
-            marginBottom: 24,
-        }}
-    >
-        <TableHead>
-            <TableRow>
-                <TableCell align="center">Trace</TableCell>
-                <TableCell align="center">Name</TableCell>
-                <TableCell align="center">Life</TableCell>
-                <TableCell align="center">Move</TableCell>
-                <TableCell align="center">Score</TableCell>
-            </TableRow>
-        </TableHead>
-        <TableBody>
-            {props.currentTurn.players.map((player, index) =>
-                <TableRow key={player.name}>
-                    <TableCell align="center">
-                        <Checkbox
-                            color="primary"
-                            style={{
-                                padding: 0,
-                            }}
-                            onChange={ev => {
-                                props.setTracedPlayers(arr => ev.target.checked ? [...arr, index] : arr.filter(e => e !== index));
-                            }}
-                            checked={props.tracedPlayers.indexOf(index) >= 0}
-                        />
-                    </TableCell>
-                    <TableCell align="center">{player.name}</TableCell>
-                    <TableCell align="center">{player.life}</TableCell>
-                    <TableCell align="center">{player.moves}</TableCell>
-                    <TableCell align="center">{player.score}</TableCell>
-                </TableRow>
-            )}
-        </TableBody>
-    </Table>
 };
 
 async function readFileContents(file: File): Promise<string> {
