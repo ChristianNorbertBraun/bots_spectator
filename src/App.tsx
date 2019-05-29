@@ -63,16 +63,19 @@ export const App: React.FC = () => {
     const [error, setError] = useState<string | undefined>(undefined);
 
     const handleReplay = (content: string) => {
-        const r = parseReplay(content);
-        if (typeof r === "string") {
-            setError(r);
+        const result = parseReplay(content);
+        if (typeof result === "string") {
+            setError(result);
         } else {
+            if (result.warning) {
+                setError(result.warning);
+            }
             setWebSocket(ws => {
                 if (ws) ws.close();
                 return undefined;
             });
             setCurrentTurnIndex(0);
-            setReplay(r);
+            setReplay(result.replay);
         }
     };
 
@@ -132,6 +135,9 @@ export const App: React.FC = () => {
                             },
                             onDisconnect: () => {
                                 setWebSocket(undefined);
+                            },
+                            onError: (message: string) => {
+                                setError(message);
                             }
                         });
 
@@ -164,6 +170,7 @@ interface SpectatorListener {
     onTurn: (turn: Turn) => void;
     onResults: (results: Results) => void;
     onDisconnect: () => void;
+    onError: (message: string) => void;
 }
 
 async function createSpectatorWebsocket(url: string, listener: SpectatorListener): Promise<WebSocket | ErrorMessage> {
@@ -180,6 +187,9 @@ async function createSpectatorWebsocket(url: string, listener: SpectatorListener
         webSocket.onmessage = message => {
             const messageData = JSON.parse(message.data);
             if (messageData.max_turns !== undefined) {
+                if (!messageData.mode) {
+                    listener.onError("Warning: Header is missing mode-field - you're probably connected to an old bots version, using default sprites.");
+                }
                 listener.onHeader(messageData);
             } else if (messageData.results !== undefined) {
                 listener.onResults(messageData);

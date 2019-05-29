@@ -28,7 +28,7 @@ export enum GameMode {
 }
 
 export interface Header {
-    mode: GameMode;
+    mode?: GameMode;
     max_turns: number;
     map_width: number;
     map_height: number;
@@ -55,11 +55,19 @@ export interface Results {
 
 export const isFinished = (replay: Replay) => replay.results.length > 0;
 
-export function parseReplay(content: string): Replay | string {
+interface ReplayParseResult {
+    replay: Replay;
+    warning?: string;
+}
+
+export function parseReplay(content: string): ReplayParseResult | string {
     try {
         const replay = JSON.parse(content);
         if (!replay.mode) {
-            return "Replay is missing `mode` field - it's probably from an old bots version.";
+            return {
+                replay,
+                warning: "Warning: Replay is missing mode-field - it's probably from an old bots version, using default sprites.",
+            };
         }
         return replay;
     } catch (e) {

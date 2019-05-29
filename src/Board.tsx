@@ -28,7 +28,7 @@ const useStyles = makeStyles({
     },
 });
 
-function pickSpritePickerFor(gameMode: GameMode): SpritePicker {
+function pickSpritePickerFor(gameMode?: GameMode): SpritePicker {
     switch (gameMode) {
         case GameMode.training:
         case GameMode.escape:
@@ -43,6 +43,8 @@ function pickSpritePickerFor(gameMode: GameMode): SpritePicker {
             return bombSpritePicker;
         case GameMode.word:
             return wordSpritePicker;
+        default:
+            return defaultSpritePicker;
     }
 }
 
