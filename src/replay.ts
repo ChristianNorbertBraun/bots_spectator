@@ -62,14 +62,14 @@ interface ReplayParseResult {
 
 export function parseReplay(content: string): ReplayParseResult | string {
     try {
-        const replay = JSON.parse(content);
+        const replay: Replay = JSON.parse(content);
         if (!replay.mode) {
             return {
                 replay,
                 warning: "Warning: Replay is missing mode-field - it's probably from an old bots version, using default sprites.",
             };
         }
-        return replay;
+        return {replay};
     } catch (e) {
         return e.toString();
     }
