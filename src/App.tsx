@@ -98,14 +98,22 @@ export const App: React.FC = () => {
                 </DialogTitle>
             </Dialog>
             <div className={styles.root}>
-                {replay &&
-                <Board
-                    replay={replay}
-                    currentTurnIndex={currentTurnIndex}
-                    tracedPlayers={tracedPlayers}
-                    traceStart={traceStart}
-                    mode3d={mode3d}
-                />
+                {replay
+                    ?
+                    <Board
+                        replay={replay}
+                        currentTurnIndex={currentTurnIndex}
+                        tracedPlayers={tracedPlayers}
+                        traceStart={traceStart}
+                        mode3d={mode3d}
+                    />
+                    : <div
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            background: `url(BotsSticker.svg) no-repeat top`,
+                        }}
+                    />
                 }
                 <Drawer
                     replay={replay}
