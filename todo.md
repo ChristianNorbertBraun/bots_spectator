@@ -7,8 +7,8 @@ TODO
 - [ ] Animate sprites so they move smoothly between turns
 - [ ] Add option to follow specific player (for 3d mode)
 - [ ] Animate transition between 2d and 3d mode
-- [ ] Add a welcome message when no replay is loaded yet, maybe the image of the flyer
 
+- [X] Add a welcome message when no replay is loaded yet, maybe the image of the flyer
 - [X] Update favicon + page title
 - [X] Highlight view radius of current turn (to differentiate it from previous turns)
 - [X] Add input for start turn of trace
