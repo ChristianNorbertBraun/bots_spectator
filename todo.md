@@ -5,11 +5,11 @@ TODO
 - [ ] Show winner in player table
 - [ ] Create replay file for every game mode for testing
 - [ ] Animate sprites so they move smoothly between turns
-- [ ] Update favicon + page title
 - [ ] Add option to follow specific player (for 3d mode)
 - [ ] Animate transition between 2d and 3d mode
 - [ ] Add a welcome message when no replay is loaded yet, maybe the image of the flyer
 
+- [X] Update favicon + page title
 - [X] Highlight view radius of current turn (to differentiate it from previous turns)
 - [X] Add input for start turn of trace
 - [X] Show sensible error message when loaded replay file is obviously corrupt
