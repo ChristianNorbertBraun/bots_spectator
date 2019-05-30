@@ -2,6 +2,7 @@ import {Turn} from "./replay";
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {
     Checkbox,
+    Collapse,
     FormControlLabel,
     Table,
     TableBody,
@@ -70,44 +71,46 @@ export const StatsTable = (props: {
                 )}
             </TableBody>
         </Table>
-        {props.tracedPlayers.length > 0 && <div>
-            <TextField
-                label="Trace Start"
-                margin="normal"
-                variant="outlined"
-                inputProps={{
-                    min: 0,
-                }}
-                style={{
-                    width: "6em",
-                }}
-                disabled={traceCurrent}
-                value={traceStartInputValue}
-                onChange={e => {
-                    setTraceStartInputValue(e.target.value);
-                    const turn = parseInt(e.target.value, 10) - 1;
-                    if (isNaN(turn)) return;
-                    props.setTraceStart(Math.max(0, Math.min(turn, props.currentTurn.turn - 1)));
-                }}
-                onBlur={_ => {
-                    setTraceStartInputValue(v => {
-                        const t = parseInt(v, 10);
-                        const t2 = isNaN(t) ? props.currentTurn.turn : Math.min(t, props.currentTurn.turn);
-                        return t2.toString(10);
-                    });
-                }}
-            />
-            <FormControlLabel
-                style={{
-                    marginTop: 24,
-                    marginLeft: 0,
-                }}
-                label="Current turn"
-                control={<Checkbox
-                    checked={traceCurrent}
-                    onChange={ev => setTraceCurrent(ev.target.checked)}
-                />}
-            />
-        </div>}
+        <Collapse in={props.tracedPlayers.length > 0}>
+            <div>
+                <TextField
+                    label="Trace Start"
+                    margin="normal"
+                    variant="outlined"
+                    inputProps={{
+                        min: 0,
+                    }}
+                    style={{
+                        width: "6em",
+                    }}
+                    disabled={traceCurrent}
+                    value={traceStartInputValue}
+                    onChange={e => {
+                        setTraceStartInputValue(e.target.value);
+                        const turn = parseInt(e.target.value, 10) - 1;
+                        if (isNaN(turn)) return;
+                        props.setTraceStart(Math.max(0, Math.min(turn, props.currentTurn.turn - 1)));
+                    }}
+                    onBlur={_ => {
+                        setTraceStartInputValue(v => {
+                            const t = parseInt(v, 10);
+                            const t2 = isNaN(t) ? props.currentTurn.turn : Math.min(t, props.currentTurn.turn);
+                            return t2.toString(10);
+                        });
+                    }}
+                />
+                <FormControlLabel
+                    style={{
+                        marginTop: 24,
+                        marginLeft: 0,
+                    }}
+                    label="Current turn"
+                    control={<Checkbox
+                        checked={traceCurrent}
+                        onChange={ev => setTraceCurrent(ev.target.checked)}
+                    />}
+                />
+            </div>
+        </Collapse>
     </div>
 };
