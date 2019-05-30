@@ -98,8 +98,13 @@ export const App: React.FC = () => {
                 </DialogTitle>
             </Dialog>
             <div className={styles.root}>
-                {replay
-                    ?
+                <div
+                    style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100%',
+                    }}>
+                    {replay &&
                     <Board
                         replay={replay}
                         currentTurnIndex={currentTurnIndex}
@@ -107,14 +112,21 @@ export const App: React.FC = () => {
                         traceStart={traceStart}
                         mode3d={mode3d}
                     />
-                    : <div
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            background: `url(BotsSticker.svg) no-repeat top`,
-                        }}
-                    />
-                }
+                    }
+                    <Slide direction="up" in={replay === undefined} timeout={{enter: 0, exit: 500}}>
+                        <div
+                            style={{
+                                position: 'absolute',
+                                width: '100%',
+                                height: '100%',
+                                top: 0,
+                                left: 0,
+                                background: `url(BotsSticker.svg) no-repeat top`,
+                            }}
+                        />
+                    </Slide>
+                </div>
+
                 <Drawer
                     replay={replay}
                     webSocket={webSocket}

@@ -23,6 +23,8 @@ const orientations = "^v><";
 const useStyles = makeStyles({
     root: {
         flexGrow: 1,
+        width: '100%',
+        height: '100%',
         // This is important, otherwise the browser will cancel pointermove events
         touchAction: 'none',
     },
