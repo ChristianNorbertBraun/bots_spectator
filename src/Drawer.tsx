@@ -1,6 +1,6 @@
 import {isFinished, Replay} from "./replay";
 import React, {Dispatch, SetStateAction, useRef, useState} from "react";
-import {Button, Drawer as MuiDrawer, TextField, Typography} from "@material-ui/core";
+import {Button, Collapse, Drawer as MuiDrawer, TextField, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
 import {paletteColor3} from "./palette";
 import {TurnControls} from "./TurnControls";
@@ -122,41 +122,45 @@ export const Drawer = (props: {
                     marginBottom: 16,
                 }}
             />
-            {props.replay &&
-            <TurnControls
-                replay={props.replay}
-                currentTurnIndex={props.currentTurnIndex}
-                delay={delay}
-                setDelay={setDelay}
-                setCurrentTurnIndex={props.setCurrentTurnIndex}
-                mode3d={props.mode3d}
-                setMode3d={props.setMode3d}
-            />
-            }
-            {currentTurn &&
-            <StatsTable
-                currentTurn={currentTurn}
-                tracedPlayers={props.tracedPlayers}
-                setTracedPlayers={props.setTracedPlayers}
-                traceStart={props.traceStart}
-                setTraceStart={props.setTraceStart}
-            />
-            }
-            {props.replay && isFinished(props.replay) &&
-            <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => {
-                    const blob = new Blob([JSON.stringify(props.replay)], {
-                        type: "application/json;charset=utf-8",
-                    });
-                    FileSaver.saveAs(blob, "replay.json");
+            <Collapse in={props.replay !== undefined}>
+                <span>
+                <p>Hallo hallo</p>
+                    {props.replay &&
+                    <TurnControls
+                        replay={props.replay}
+                        currentTurnIndex={props.currentTurnIndex}
+                        delay={delay}
+                        setDelay={setDelay}
+                        setCurrentTurnIndex={props.setCurrentTurnIndex}
+                        mode3d={props.mode3d}
+                        setMode3d={props.setMode3d}
+                    />}
+                </span>
+                {currentTurn &&
+                <StatsTable
+                    currentTurn={currentTurn}
+                    tracedPlayers={props.tracedPlayers}
+                    setTracedPlayers={props.setTracedPlayers}
+                    traceStart={props.traceStart}
+                    setTraceStart={props.setTraceStart}
+                />
                 }
+                {props.replay && isFinished(props.replay) &&
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => {
+                        const blob = new Blob([JSON.stringify(props.replay)], {
+                            type: "application/json;charset=utf-8",
+                        });
+                        FileSaver.saveAs(blob, "replay.json");
+                    }
+                    }
+                >
+                    Download replay
+                </Button>
                 }
-            >
-                Download replay
-            </Button>
-            }
+            </Collapse>
         </MuiDrawer>
     );
 };
