@@ -124,7 +124,6 @@ export const Drawer = (props: {
             />
             <Collapse in={props.replay !== undefined}>
                 <span>
-                <p>Hallo hallo</p>
                     {props.replay &&
                     <TurnControls
                         replay={props.replay}
