@@ -50,6 +50,14 @@ function pickSpritePickerFor(gameMode?: GameMode): SpritePicker {
     }
 }
 
+interface DeathSprite {
+    setOpacity: (v: number) => void;
+    render: (drawSprite: DrawSpriteFunc) => void;
+    remove: () => void;
+}
+
+type Animation = (now: number) => Animation | null;
+
 function renderFrame(props: {
     myGL: MyGL,
     spritePicker: SpritePicker,
@@ -59,6 +67,7 @@ function renderFrame(props: {
     tracedPlayers: number[],
     traceStart: number,
     drawSprite: DrawSpriteFunc,
+    deathSprites: DeathSprite[],
 }) {
     const {myGL} = props;
     initFrame(myGL, props.rotation);
@@ -85,6 +94,7 @@ function renderFrame(props: {
         viewRadius: props.replay.view_radius,
     });
 
+    // Draw map
     for (let yy = 0; yy < props.replay.map_height; ++yy) {
         const y = props.replay.map_height - yy - 1;
         for (let x = 0; x < props.replay.map_width; ++x) {
@@ -106,13 +116,13 @@ function renderFrame(props: {
             if (props.tracedPlayers.indexOf(i) < 0) continue;
             let player = turn.players[i];
             const orientationOffset = orientations.indexOf(player.bearing);
-            const y = props.replay.map_height - player.y - 1;
-            const pos = {x: player.x, y};
+            const pos = {x: player.x, y: props.replay.map_height - player.y - 1};
             const playerSprite = pickPlayerSpriteStart(player.name, player.x, player.y)[0];
             props.drawSprite(playerSprite.spriteIndex + orientationOffset, pos, traceTint);
         }
     }
 
+    // Draw players
     for (const player of turn.players) {
         if (player.life <= 0) {
             continue;
@@ -123,6 +133,51 @@ function renderFrame(props: {
         const pos = {x: player.x, y};
         props.drawSprite(playerSprite.spriteIndex + orientationOffset, pos);
     }
+
+    // Draw death sprites
+    props.deathSprites.forEach(s => s.render(props.drawSprite));
+}
+
+function createNewDeathSprites(replay: Replay, currentTurnIndex: number, onRemove: (s: DeathSprite) => void): DeathSprite[] {
+    if (replay.turns.length <= currentTurnIndex) {
+        return [];
+    }
+    const turn = replay.turns[currentTurnIndex];
+    const result: DeathSprite[] = [];
+    for (const player of turn.players) {
+        if (player.life <= 0 && player.moves === (turn.turn - 1)) {
+            const tint = new Float32Array([1, 1, 1, 1]);
+            const pos = {x: player.x, y: replay.map_height - player.y - 1};
+            const s: DeathSprite = {
+                setOpacity: (v: number) => {
+                    tint[3] = v;
+                },
+                remove: () => {
+                    onRemove(s)
+                },
+                render: function (drawSprite: DrawSpriteFunc) {
+                    drawSprite(114, pos, tint);
+                }
+            };
+            result.push(s);
+        }
+    }
+    return result;
+}
+
+const deathAnimationDuration = 1000.0;
+
+function createDeathAnimation(start: number, sprite: DeathSprite): Animation {
+    const a: Animation = (now: number) => {
+        if (now - start > deathAnimationDuration) {
+            sprite.remove();
+            return null;
+        } else {
+            sprite.setOpacity(1.0 - (now - start) / deathAnimationDuration);
+            return a;
+        }
+    };
+    return a;
 }
 
 const rotationSpeed = 0.05;
@@ -145,6 +200,10 @@ export const Board = (props: {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [myGL, setMyGL] = useState<MyGL>();
     const perMapVertexBuffers = useRef<PerMapVertexBuffers | null>(null);
+    const prevTurnIndex = useRef(props.currentTurnIndex);
+    const deathSprites = useRef<DeathSprite[]>([]);
+    const animations = useRef<Animation[]>([]);
+    const [forceRenderCounter, setForceRenderCounter] = useState(0);
     const [rotation, setRotation] = useState({x: 0, y: 0});
     useWindowSize(); // This dependencies triggers a re-render when the window size changes
 
@@ -178,6 +237,8 @@ export const Board = (props: {
 
     useEffect(() => {
         if (myGL === undefined) return;
+        const now = performance.now();
+        // console.log(`rendering, now: ${now}, forceRenderCounter:${forceRenderCounter}, animationCount: ${animations.current.length}`);
         const mapDim: Dimension = {
             width: props.replay.map_width, height: props.replay.map_height,
         };
@@ -185,13 +246,34 @@ export const Board = (props: {
         const drawSpriteFunc = props.mode3d
             ? drawSprite(myGL, mapDim, b.torusPosVertexBuffer, b.torusNormalVertexBuffer)
             : drawSprite(myGL, mapDim, b.planePosVertexBuffer);
+
+        if (prevTurnIndex.current !== props.currentTurnIndex) {
+            const newDeathSprites = createNewDeathSprites(props.replay, props.currentTurnIndex, s => {
+                const i = deathSprites.current.indexOf(s);
+                if (i >= 0) deathSprites.current.splice(i, 1);
+            });
+            deathSprites.current = deathSprites.current.concat(newDeathSprites);
+            animations.current = animations.current.concat(newDeathSprites.map(s => createDeathAnimation(now, s)));
+        }
+
+        // Progress animations
+        animations.current = filterNulls(animations.current.map(a => a(now)));
+
         renderFrame({
             myGL,
             spritePicker: pickSpritePickerFor(props.replay.mode),
             drawSprite: drawSpriteFunc,
             rotation: props.mode3d ? rotation : {x: 0, y: 0},
+            deathSprites: deathSprites.current,
             ...props,
         });
+        if (animations.current.length > 0) {
+            setForceRenderCounter(x => x + 1);
+        }
+    }, [myGL, props, rotation, forceRenderCounter]);
+
+    useEffect(() => {
+        prevTurnIndex.current = props.currentTurnIndex;
     });
 
     return (
@@ -254,4 +336,8 @@ function randomInt(max: number): number {
 // eslint-disable-next-line
 function randomIntBetween(min: number, max: number): number {
     return min + randomInt(max - min);
+}
+
+export function filterNulls<T>(l: (T | null)[]): T[] {
+    return l.filter((t: T | null): t is T => !!t);
 }
