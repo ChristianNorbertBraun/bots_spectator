@@ -17,6 +17,7 @@ import {
     createTorusPosVertexBuffer
 } from "./vertexPosBuffers";
 import {calcSeenFields} from "./mapUtils";
+import {Howl} from 'howler';
 
 const orientations = "^v><";
 
@@ -29,6 +30,8 @@ const useStyles = makeStyles({
         touchAction: 'none',
     },
 });
+
+const explosionSound = new Howl({src: "explosion.wav"});
 
 function pickSpritePickerFor(gameMode?: GameMode): SpritePicker {
     switch (gameMode) {
@@ -168,6 +171,7 @@ function createNewDeathSprites(replay: Replay, currentTurnIndex: number, onRemov
 const deathAnimationDuration = 1000.0;
 
 function createDeathAnimation(start: number, sprite: DeathSprite): Animation {
+    explosionSound.play();
     const a: Animation = (now: number) => {
         if (now - start > deathAnimationDuration) {
             sprite.remove();
@@ -247,7 +251,7 @@ export const Board = (props: {
             ? drawSprite(myGL, mapDim, b.torusPosVertexBuffer, b.torusNormalVertexBuffer)
             : drawSprite(myGL, mapDim, b.planePosVertexBuffer);
 
-        if (prevTurnIndex.current !== props.currentTurnIndex) {
+        if (props.currentTurnIndex > prevTurnIndex.current) {
             const newDeathSprites = createNewDeathSprites(props.replay, props.currentTurnIndex, s => {
                 const i = deathSprites.current.indexOf(s);
                 if (i >= 0) deathSprites.current.splice(i, 1);
