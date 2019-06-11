@@ -156,7 +156,7 @@ export const Drawer = (props: {
                     }
                     }
                 >
-                    Download replay
+                    Save replay
                 </Button>
                 }
             </Collapse>
