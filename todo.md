@@ -9,6 +9,7 @@ TODO
 - [ ] Bug: Should stop auto play and reset traced players (probably also reset rotation) when loading a new replay
 - [ ] Torus rotation only initially rotates around the expected axes
 - [ ] Allow to reset torus rotation
+- [ ] Bug: Sound shall only be initialized after first user interaction, otherwise Chrome etc. might prevent it
 
 - [X] Animate transition between 2d and 3d mode
 - [X] Add a welcome message when no replay is loaded yet, maybe the image of the flyer
