@@ -1,14 +1,16 @@
 TODO
 ====
 
+- [ ] Persist spectator URL across reloads
+- [ ] Update README.md
+- [ ] Highlight winner or top 3 in player table
 - [ ] Show explosion for dying bots
-- [ ] Show winner in player table
 - [ ] Create replay file for every game mode for testing
-- [ ] Animate sprites so they move smoothly between turns
 - [ ] Add option to follow specific player (for 3d mode)
 - [ ] Bug: Should stop auto play and reset traced players (probably also reset rotation) when loading a new replay
 - [ ] Torus rotation only initially rotates around the expected axes
 - [ ] Allow to reset torus rotation
+- [ ] Improve color contrast of torus
 - [ ] Bug: Sound shall only be initialized after first user interaction, otherwise Chrome etc. might prevent it
 
 - [X] Animate transition between 2d and 3d mode
