@@ -12,6 +12,7 @@ const playerChars = "ABCDEFGHIJKLMNOP";
 const letterChars = "abcdefghijklmnopqrstuuwxyz";
 const monsterChars = "e";
 const obsticleChars = "#X~";
+const boomObsticleChars = "Y";
 const portalChars = "o&";
 
 const chain = (pickers: SpritePicker[]): SpritePicker => {
@@ -44,6 +45,14 @@ const pickFlatlandSprite: SpritePicker = (c, x, y) => {
 
 const pickObsticleSprite: SpritePicker = (c, x, y) => {
     const index = obsticleChars.indexOf(c);
+    if (index === -1) {
+        return [];
+    }
+    return [{spriteIndex: 2 + index}];
+};
+
+const pickBoomObsticleSprite: SpritePicker = (c, x, y) => {
+    const index = boomObsticleChars.indexOf(c);
     if (index === -1) {
         return [];
     }
@@ -99,7 +108,7 @@ const pickSnakeTailSprite: SpritePicker = (c, x, y) => {
 export const defaultSpritePicker: SpritePicker = chain([pickFlatlandSprite, pickObsticleSprite, pickPortalSprite, pickGemSprite, pickSnakeTailSprite]);
 export const wordSpritePicker: SpritePicker = chain([pickLetterSprite, defaultSpritePicker]);
 export const hordeSpritePicker: SpritePicker = chain([pickPowerUpSprite, pickMonsterSprite, defaultSpritePicker]);
-export const bombSpritePicker: SpritePicker = chain([pickBombSprite, pickPowerUpSprite, defaultSpritePicker]);
+export const bombSpritePicker: SpritePicker = chain([pickBombSprite, pickBoomObsticleSprite, pickPowerUpSprite, defaultSpritePicker]);
 
 export const pickPlayerSpriteStart: SpritePicker = (c, x, y) => {
     const index = playerChars.indexOf(c);
