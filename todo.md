@@ -6,8 +6,11 @@ TODO
 - [ ] Create replay file for every game mode for testing
 - [ ] Animate sprites so they move smoothly between turns
 - [ ] Add option to follow specific player (for 3d mode)
-- [ ] Animate transition between 2d and 3d mode
+- [ ] Bug: Should stop auto play and reset traced players (probably also reset rotation) when loading a new replay
+- [ ] Torus rotation only initially rotates around the expected axes
+- [ ] Allow to reset torus rotation
 
+- [X] Animate transition between 2d and 3d mode
 - [X] Add a welcome message when no replay is loaded yet, maybe the image of the flyer
 - [X] Update favicon + page title
 - [X] Highlight view radius of current turn (to differentiate it from previous turns)
