@@ -236,7 +236,7 @@ export const Board = (props: {
     const modeTransition = useRef(props.mode3d ? 0.0 : 1.0);
     const [forceRenderCounter, setForceRenderCounter] = useState(0);
     const [rotation, setRotation] = useState(quat.create());
-    useWindowSize(); // This dependencies triggers a re-render when the window size changes
+    const windowSize = useWindowSize();
 
     useEffect(() => {
             if (canvasRef.current == null) {
@@ -312,7 +312,7 @@ export const Board = (props: {
         if (animations.current.length > 0 || modeAnimation.current) {
             setForceRenderCounter(x => x + 1);
         }
-    }, [myGL, props, rotation, forceRenderCounter]);
+    }, [myGL, props, rotation, forceRenderCounter, windowSize]);
 
     useEffect(() => {
         prevTurnIndex.current = props.currentTurnIndex;
