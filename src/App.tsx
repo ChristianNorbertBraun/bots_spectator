@@ -195,31 +195,35 @@ interface SpectatorListener {
 
 async function createSpectatorWebsocket(url: string, listener: SpectatorListener): Promise<WebSocket | ErrorMessage> {
     return new Promise((resolve, reject) => {
-        const webSocket = new WebSocket(url);
-        webSocket.onopen = ev => {
-            resolve(webSocket);
-        };
-        webSocket.onerror = ev => {
-            resolve({
-                message: `Error establishing WebSocket to ${url}`
-            });
-        };
-        webSocket.onmessage = message => {
-            const messageData = JSON.parse(message.data);
-            if (messageData.max_turns !== undefined) {
-                if (!messageData.mode) {
-                    listener.onError("Warning: Header is missing mode-field - you're probably connected to an old bots version, using default sprites.");
+        try {
+            const webSocket = new WebSocket(url);
+            webSocket.onopen = ev => {
+                resolve(webSocket);
+            };
+            webSocket.onerror = ev => {
+                resolve({
+                    message: `Error establishing WebSocket to ${url}`
+                });
+            };
+            webSocket.onmessage = message => {
+                const messageData = JSON.parse(message.data);
+                if (messageData.max_turns !== undefined) {
+                    if (!messageData.mode) {
+                        listener.onError("Warning: Header is missing mode-field - you're probably connected to an old bots version, using default sprites.");
+                    }
+                    listener.onHeader(messageData);
+                } else if (messageData.results !== undefined) {
+                    listener.onResults(messageData);
+                } else if (messageData.turn !== undefined) {
+                    listener.onTurn(messageData);
+                } else {
+                    throw Error(`unexpected message: ${message.data}`);
                 }
-                listener.onHeader(messageData);
-            } else if (messageData.results !== undefined) {
-                listener.onResults(messageData);
-            } else if (messageData.turn !== undefined) {
-                listener.onTurn(messageData);
-            } else {
-                throw Error(`unexpected message: ${message.data}`);
-            }
-        };
-        webSocket.onclose = listener.onDisconnect;
-        return webSocket;
+            };
+            webSocket.onclose = listener.onDisconnect;
+            return webSocket;
+        } catch (e) {
+            resolve({message: e.toString()});
+        }
     });
 }
