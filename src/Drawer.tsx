@@ -157,6 +157,7 @@ export const Drawer = (props: {
                     Save replay
                 </Button>
                 }
+                <div style={{marginBottom: 30}}/>
             </Collapse>
         </MuiDrawer>
     );
