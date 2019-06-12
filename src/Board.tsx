@@ -190,12 +190,21 @@ function createScalarAnimation(props: { startTime: number, duration: number, fro
             props.set(props.to);
             return null;
         } else {
-            const v = (now - props.startTime) / props.duration;
+            const v = easeInOut((now - props.startTime) / props.duration);
             props.set((1 - v) * props.from + v * props.to);
             return a;
         }
     };
     return a;
+}
+
+function easeInOut(v: number): number {
+    const v2 = 2 * v;
+    if (v2 < 1) {
+        return (v2 * v2 * v2) / 2;
+    }
+    const ov = v2 - 2;
+    return (2 + ov * ov * ov) / 2;
 }
 
 const rotationSpeed = 0.05;
