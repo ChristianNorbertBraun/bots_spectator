@@ -18,6 +18,7 @@ import {
 } from "./vertexPosBuffers";
 import {calcSeenFields} from "./mapUtils";
 import {Howl} from 'howler';
+import {quat} from "gl-matrix";
 
 const orientations = "^v><";
 
@@ -65,7 +66,7 @@ function renderFrame(props: {
     myGL: MyGL,
     spritePicker: SpritePicker,
     replay: Replay,
-    rotation: { x: number, y: number },
+    rotation: quat,
     currentTurnIndex: number,
     tracedPlayers: number[],
     traceStart: number,
@@ -234,7 +235,7 @@ export const Board = (props: {
     const modeAnimation = useRef<Animation | null>(null);
     const modeTransition = useRef(props.mode3d ? 0.0 : 1.0);
     const [forceRenderCounter, setForceRenderCounter] = useState(0);
-    const [rotation, setRotation] = useState({x: 0, y: 0});
+    const [rotation, setRotation] = useState(quat.create());
     useWindowSize(); // This dependencies triggers a re-render when the window size changes
 
     useEffect(() => {
@@ -304,7 +305,7 @@ export const Board = (props: {
             myGL,
             spritePicker: pickSpritePickerFor(props.replay.mode),
             drawSprite: drawSpriteFunc,
-            rotation: {x: (1 - modeTransition.current) * rotation.x, y: (1 - modeTransition.current) * rotation.y},
+            rotation: quat.scale(quat.create(), rotation, 1 - modeTransition.current),
             deathSprites: deathSprites.current,
             ...props,
         });
@@ -326,10 +327,10 @@ export const Board = (props: {
                         const mx = ev.movementY * rotationSpeed;
                         const my = ev.movementX * rotationSpeed;
                         setRotation((rot) => {
-                            return {
-                                x: rot.x + mx,
-                                y: rot.y + my,
-                            }
+                            const result = quat.create();
+                            quat.rotateX(result, rot, mx);
+                            quat.rotateY(result, result, my);
+                            return result;
                         })
                     }
                 }}

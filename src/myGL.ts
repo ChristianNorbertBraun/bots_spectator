@@ -1,4 +1,4 @@
-import {mat4} from "gl-matrix";
+import {mat4, quat} from "gl-matrix";
 import {paletteColor5} from "./palette";
 import chroma from "chroma-js";
 import {Dimension, Point} from "./geom";
@@ -145,7 +145,7 @@ export async function createMyGL(gl: WebGLRenderingContext): Promise<MyGL> {
     };
 }
 
-export function initFrame(myGL: MyGL, rotation: { x: number, y: number },) {
+export function initFrame(myGL: MyGL, rotation: quat,) {
     const {gl, programInfo} = myGL;
     resize(gl, programInfo, rotation);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -240,7 +240,7 @@ export const drawSprite = (
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 };
 
-function resize(gl: WebGLRenderingContext, pi: ProgramInfo, rotation: { x: number, y: number },) {
+function resize(gl: WebGLRenderingContext, pi: ProgramInfo, rotation: quat,) {
     const canvasWidth = gl.canvas.clientWidth;
     const canvasHeight = gl.canvas.clientHeight;
     gl.canvas.width = canvasWidth;
@@ -250,9 +250,7 @@ function resize(gl: WebGLRenderingContext, pi: ProgramInfo, rotation: { x: numbe
     const x = canvasWidth > canvasHeight ? canvasWidth / canvasHeight : 1.0;
     const y = canvasHeight > canvasWidth ? canvasHeight / canvasWidth : 1.0;
 
-    const mv = mat4.identity(mat4Tmp1);
-    mat4.rotateX(mv, mv, rotation.x);
-    mat4.rotateY(mv, mv, rotation.y);
+    const mv = mat4.fromQuat(mat4Tmp1, rotation);
     gl.uniformMatrix4fv(pi.mvUniformLoc, false, mv);
 
     const mvp = mat4.identity(mat4Tmp2);
