@@ -123,18 +123,16 @@ export const Drawer = (props: {
                 }}
             />
             <Collapse in={props.replay !== undefined}>
-                <span>
-                    {props.replay &&
-                    <TurnControls
-                        replay={props.replay}
-                        currentTurnIndex={props.currentTurnIndex}
-                        delay={delay}
-                        setDelay={setDelay}
-                        setCurrentTurnIndex={props.setCurrentTurnIndex}
-                        mode3d={props.mode3d}
-                        setMode3d={props.setMode3d}
-                    />}
-                </span>
+                {props.replay &&
+                <TurnControls
+                    replay={props.replay}
+                    currentTurnIndex={props.currentTurnIndex}
+                    delay={delay}
+                    setDelay={setDelay}
+                    setCurrentTurnIndex={props.setCurrentTurnIndex}
+                    mode3d={props.mode3d}
+                    setMode3d={props.setMode3d}
+                />}
                 {currentTurn &&
                 <StatsTable
                     currentTurn={currentTurn}
