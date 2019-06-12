@@ -304,7 +304,7 @@ export const Board = (props: {
             myGL,
             spritePicker: pickSpritePickerFor(props.replay.mode),
             drawSprite: drawSpriteFunc,
-            rotation: props.mode3d ? rotation : {x: 0, y: 0},
+            rotation: {x: (1 - modeTransition.current) * rotation.x, y: (1 - modeTransition.current) * rotation.y},
             deathSprites: deathSprites.current,
             ...props,
         });
