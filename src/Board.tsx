@@ -170,14 +170,28 @@ function createNewDeathSprites(replay: Replay, currentTurnIndex: number, onRemov
 
 const deathAnimationDuration = 1000.0;
 
-function createDeathAnimation(start: number, sprite: DeathSprite): Animation {
+function createDeathAnimation(startTime: number, sprite: DeathSprite): Animation {
     explosionSound.play();
     const a: Animation = (now: number) => {
-        if (now - start > deathAnimationDuration) {
+        if (now - startTime > deathAnimationDuration) {
             sprite.remove();
             return null;
         } else {
-            sprite.setOpacity(1.0 - (now - start) / deathAnimationDuration);
+            sprite.setOpacity(1.0 - (now - startTime) / deathAnimationDuration);
+            return a;
+        }
+    };
+    return a;
+}
+
+function createScalarAnimation(props: { startTime: number, duration: number, from: number, to: number, set: (v: number) => void }): Animation {
+    const a: Animation = (now: number) => {
+        if (now - props.startTime > props.duration) {
+            props.set(props.to);
+            return null;
+        } else {
+            const v = (now - props.startTime) / props.duration;
+            props.set((1 - v) * props.from + v * props.to);
             return a;
         }
     };
@@ -205,8 +219,11 @@ export const Board = (props: {
     const [myGL, setMyGL] = useState<MyGL>();
     const perMapVertexBuffers = useRef<PerMapVertexBuffers | null>(null);
     const prevTurnIndex = useRef(props.currentTurnIndex);
+    const prevMode3d = useRef(props.mode3d);
     const deathSprites = useRef<DeathSprite[]>([]);
     const animations = useRef<Animation[]>([]);
+    const modeAnimation = useRef<Animation | null>(null);
+    const modeTransition = useRef(props.mode3d ? 0.0 : 1.0);
     const [forceRenderCounter, setForceRenderCounter] = useState(0);
     const [rotation, setRotation] = useState({x: 0, y: 0});
     useWindowSize(); // This dependencies triggers a re-render when the window size changes
@@ -247,9 +264,7 @@ export const Board = (props: {
             width: props.replay.map_width, height: props.replay.map_height,
         };
         const b = perMapVertexBuffers.current!!;
-        const drawSpriteFunc = props.mode3d
-            ? drawSprite(myGL, mapDim, b.torusPosVertexBuffer, b.torusNormalVertexBuffer)
-            : drawSprite(myGL, mapDim, b.planePosVertexBuffer);
+        const drawSpriteFunc = drawSprite(myGL, mapDim, b.planePosVertexBuffer, b.torusPosVertexBuffer, b.torusNormalVertexBuffer, modeTransition.current);
 
         if (props.currentTurnIndex > prevTurnIndex.current) {
             const newDeathSprites = createNewDeathSprites(props.replay, props.currentTurnIndex, s => {
@@ -260,8 +275,21 @@ export const Board = (props: {
             animations.current = animations.current.concat(newDeathSprites.map(s => createDeathAnimation(now, s)));
         }
 
+        if (props.mode3d !== prevMode3d.current) {
+            modeAnimation.current = createScalarAnimation({
+                startTime: now,
+                duration: 1000,
+                from: modeTransition.current,
+                to: props.mode3d ? 0.0 : 1.0,
+                set: v => modeTransition.current = v,
+            });
+        }
+
         // Progress animations
         animations.current = filterNulls(animations.current.map(a => a(now)));
+        if (modeAnimation.current) {
+            modeAnimation.current = modeAnimation.current(now);
+        }
 
         renderFrame({
             myGL,
@@ -271,13 +299,14 @@ export const Board = (props: {
             deathSprites: deathSprites.current,
             ...props,
         });
-        if (animations.current.length > 0) {
+        if (animations.current.length > 0 || modeAnimation.current) {
             setForceRenderCounter(x => x + 1);
         }
     }, [myGL, props, rotation, forceRenderCounter]);
 
     useEffect(() => {
         prevTurnIndex.current = props.currentTurnIndex;
+        prevMode3d.current = props.mode3d;
     });
 
     return (

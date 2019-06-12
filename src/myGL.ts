@@ -4,8 +4,11 @@ import chroma from "chroma-js";
 import {Dimension, Point} from "./geom";
 
 const vertexShaderSource = `
-attribute vec3 a_pos;
-attribute vec3 a_normal;
+attribute float a_transition;
+attribute vec3 a_pos1;
+attribute vec3 a_pos2;
+attribute vec3 a_normal1;
+attribute vec3 a_normal2;
 attribute vec2 a_uv;
 attribute vec4 a_tint;
 uniform mat4 u_mv;
@@ -15,8 +18,10 @@ varying vec2 v_uv;
 varying vec4 v_tint;
 
 void main() {
-  gl_Position = u_mvp * vec4(a_pos, 1.);
-  v_normal = vec3(u_mv * vec4(a_normal, 0.0));
+  vec3 pos = a_pos1 * a_transition + a_pos2 * (1.0 - a_transition);
+  gl_Position = u_mvp * vec4(pos, 1.);
+  vec3 normal = a_normal1 * a_transition + a_normal2 * (1.0 - a_transition);
+  v_normal = vec3(u_mv * vec4(normal, 0.0));
   v_uv = a_uv;
   v_tint = a_tint;
 }
@@ -58,8 +63,11 @@ export interface MyGL {
 export interface ProgramInfo {
     program: WebGLProgram,
     uvBuffer: WebGLBuffer,
-    posAttribLoc: number,
-    normalAttribLoc: number,
+    transitionAttribLoc: number,
+    pos1AttribLoc: number,
+    pos2AttribLoc: number,
+    normal1AttribLoc: number,
+    normal2AttribLoc: number,
     uvAttribLoc: number,
     tintAttribLoc: number,
     mvUniformLoc: WebGLUniformLocation,
@@ -75,9 +83,14 @@ function compileShader(gl: WebGLRenderingContext, type: GLenum, src: string) {
 }
 
 function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HTMLImageElement): ProgramInfo {
-    const posAttribLoc = gl.getAttribLocation(program, 'a_pos');
-    gl.enableVertexAttribArray(posAttribLoc);
-    const normalAttribLoc = gl.getAttribLocation(program, 'a_normal');
+    const transitionAttribLoc = gl.getAttribLocation(program, 'a_transition');
+    const pos1AttribLoc = gl.getAttribLocation(program, 'a_pos1');
+    gl.enableVertexAttribArray(pos1AttribLoc);
+    const pos2AttribLoc = gl.getAttribLocation(program, 'a_pos2');
+    gl.enableVertexAttribArray(pos2AttribLoc);
+    const normal1AttribLoc = gl.getAttribLocation(program, 'a_normal1');
+    const normal2AttribLoc = gl.getAttribLocation(program, 'a_normal2');
+    gl.enableVertexAttribArray(normal2AttribLoc);
 
     const uvBuffer = gl.createBuffer()!!;
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
@@ -93,8 +106,11 @@ function initBuffers(gl: WebGLRenderingContext, program: WebGLProgram, atlas: HT
     return {
         program,
         uvBuffer,
-        posAttribLoc,
-        normalAttribLoc,
+        transitionAttribLoc,
+        pos1AttribLoc,
+        pos2AttribLoc,
+        normal1AttribLoc,
+        normal2AttribLoc,
         uvAttribLoc,
         tintAttribLoc,
         mvUniformLoc,
@@ -204,23 +220,23 @@ export type DrawSpriteFunc = (sprite: number, pos: Point, tint?: Float32Array) =
 export const drawSprite = (
     myGL: MyGL,
     mapDim: Dimension,
-    posVertexBuffer: WebGLBuffer,
-    normalVertexBuffer?: WebGLBuffer,
+    pos1VertexBuffer: WebGLBuffer,
+    pos2VertexBuffer: WebGLBuffer,
+    torusNormalVertexBuffer: WebGLBuffer,
+    modeTransition: number,
 ): DrawSpriteFunc => (sprite: number, pos: Point, tint: Float32Array = defaultTint) => {
     const {gl, programInfo} = myGL;
-    gl.bindBuffer(gl.ARRAY_BUFFER, posVertexBuffer);
-    gl.vertexAttribPointer(programInfo.posAttribLoc, 3, gl.FLOAT, false, 0, (pos.y * mapDim.width + pos.x) * 4 * 3 * 4);
-    if (normalVertexBuffer) {
-        gl.enableVertexAttribArray(programInfo.normalAttribLoc);
-        gl.bindBuffer(gl.ARRAY_BUFFER, normalVertexBuffer);
-        gl.vertexAttribPointer(programInfo.normalAttribLoc, 3, gl.FLOAT, false, 0, (pos.y * mapDim.width + pos.x) * 4 * 3 * 4);
-    } else {
-        gl.disableVertexAttribArray(programInfo.normalAttribLoc);
-        gl.vertexAttrib3fv(programInfo.normalAttribLoc, planeNormal);
-    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, pos1VertexBuffer);
+    gl.vertexAttribPointer(programInfo.pos1AttribLoc, 3, gl.FLOAT, false, 0, (pos.y * mapDim.width + pos.x) * 4 * 3 * 4);
+    gl.bindBuffer(gl.ARRAY_BUFFER, pos2VertexBuffer);
+    gl.vertexAttribPointer(programInfo.pos2AttribLoc, 3, gl.FLOAT, false, 0, (pos.y * mapDim.width + pos.x) * 4 * 3 * 4);
+    gl.vertexAttrib3fv(programInfo.normal1AttribLoc, planeNormal);
+    gl.bindBuffer(gl.ARRAY_BUFFER, torusNormalVertexBuffer);
+    gl.vertexAttribPointer(programInfo.normal2AttribLoc, 3, gl.FLOAT, false, 0, (pos.y * mapDim.width + pos.x) * 4 * 3 * 4);
     gl.bindBuffer(gl.ARRAY_BUFFER, programInfo.uvBuffer);
     gl.vertexAttribPointer(programInfo.uvAttribLoc, 2, gl.FLOAT, false, 0, sprite << 5);
     gl.vertexAttrib4fv(programInfo.tintAttribLoc, tint);
+    gl.vertexAttrib1f(programInfo.transitionAttribLoc, modeTransition);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 };
 
