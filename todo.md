@@ -1,7 +1,6 @@
 TODO
 ====
 
-- [ ] Persist spectator URL across reloads
 - [ ] Update README.md
 - [ ] Highlight winner or top 3 in player table
 - [ ] Show explosion for dying bots
@@ -13,6 +12,7 @@ TODO
 - [ ] Improve color contrast of torus
 - [ ] Bug: Sound shall only be initialized after first user interaction, otherwise Chrome etc. might prevent it
 
+- [X] Persist spectator URL across reloads
 - [X] Animate transition between 2d and 3d mode
 - [X] Add a welcome message when no replay is loaded yet, maybe the image of the flyer
 - [X] Update favicon + page title

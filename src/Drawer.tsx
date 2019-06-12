@@ -1,5 +1,5 @@
 import {isFinished, Replay} from "./replay";
-import React, {Dispatch, SetStateAction, useRef, useState} from "react";
+import React, {Dispatch, SetStateAction, useState} from "react";
 import {Button, Collapse, Drawer as MuiDrawer, TextField, Typography} from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
 import {paletteColor3} from "./palette";
@@ -39,7 +39,9 @@ export const Drawer = (props: {
     traceStart: number,
     setTraceStart: Dispatch<SetStateAction<number>>,
 }) => {
-    const addressInputRef = useRef<HTMLInputElement>(null);
+    const [addressInputValue, setAddressInputValue] = useState(() =>
+        window.localStorage.getItem('serverAddress') || 'ws://localhost:63189'
+    );
 
     const currentTurn = props.replay && props.replay.turns[props.currentTurnIndex];
     const [delay, setDelay] = useState(0.1);
@@ -104,16 +106,25 @@ export const Drawer = (props: {
                 </>
                 : <>
                     <TextField
-                        inputRef={addressInputRef}
                         label="Host"
-                        defaultValue="ws://localhost:63189"
                         margin="normal"
                         variant="outlined"
+                        value={addressInputValue}
+                        onChange={e => {
+                            setAddressInputValue(e.target.value);
+                            window.localStorage.setItem('serverAddress', e.target.value);
+                        }}
+                        onKeyPress={(ev) => {
+                            if (ev.key === 'Enter') {
+                                ev.preventDefault();
+                                props.onConnectWebsocket(addressInputValue);
+                            }
+                        }}
                     />
                     <Button
                         color="primary"
                         variant="contained"
-                        onClick={() => addressInputRef.current && props.onConnectWebsocket(addressInputRef.current.value)}>
+                        onClick={() => props.onConnectWebsocket(addressInputValue)}>
                         Connect
                     </Button>
                 </>}
