@@ -1,7 +1,6 @@
 TODO
 ====
 
-- [ ] Highlight winner or top 3 in player table
 - [ ] Add option to follow specific player (for 3d mode)
 - [ ] Bug: Should stop auto play and reset traced players (probably also reset rotation) when loading a new replay
 - [ ] Torus rotation only initially rotates around the expected axes
@@ -9,6 +8,7 @@ TODO
 - [ ] Improve color contrast of torus
 - [ ] Bug: Sound shall only be initialized after first user interaction, otherwise Chrome etc. might prevent it
 
+- [X] Highlight winner or top 3 in player table
 - [X] Show explosion for dying bots
 - [X] Create replay file for every game mode for testing
 - [X] Update README.md
