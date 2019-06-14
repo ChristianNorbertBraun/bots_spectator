@@ -1,4 +1,4 @@
-import {Turn} from "./replay";
+import {Player, Turn} from "./replay";
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {
     Checkbox,
@@ -50,24 +50,13 @@ export const StatsTable = (props: {
             </TableHead>
             <TableBody>
                 {props.currentTurn.players.map((player, index) =>
-                    <TableRow key={player.name}>
-                        <TableCell align="center">
-                            <Checkbox
-                                color="primary"
-                                style={{
-                                    padding: 0,
-                                }}
-                                onChange={ev => {
-                                    props.setTracedPlayers(arr => ev.target.checked ? [...arr, index] : arr.filter(e => e !== index));
-                                }}
-                                checked={props.tracedPlayers.indexOf(index) >= 0}
-                            />
-                        </TableCell>
-                        <TableCell align="center">{player.name}</TableCell>
-                        <TableCell align="center">{player.life}</TableCell>
-                        <TableCell align="center">{player.moves}</TableCell>
-                        <TableCell align="center">{player.score}</TableCell>
-                    </TableRow>
+                    <StatsTableRow
+                        player={player}
+                        traced={props.tracedPlayers.indexOf(index) >= 0}
+                        setTraced={v =>
+                            props.setTracedPlayers(arr => v ? [...arr, index] : arr.filter(e => e !== index))
+                        }
+                    />
                 )}
             </TableBody>
         </Table>
@@ -113,4 +102,30 @@ export const StatsTable = (props: {
             </div>
         </Collapse>
     </div>
+};
+
+const StatsTableRow = (props: {
+    player: Player,
+    traced: boolean,
+    setTraced: (v: boolean) => void
+}) => {
+    const {player} = props;
+    return <TableRow key={player.name}>
+        <TableCell align="center">
+            <Checkbox
+                color="primary"
+                style={{
+                    padding: 0,
+                }}
+                onChange={ev => {
+                    props.setTraced(ev.target.checked);
+                }}
+                checked={props.traced}
+            />
+        </TableCell>
+        <TableCell align="center">{player.name}</TableCell>
+        <TableCell align="center">{player.life}</TableCell>
+        <TableCell align="center">{player.moves}</TableCell>
+        <TableCell align="center">{player.score}</TableCell>
+    </TableRow>;
 };
