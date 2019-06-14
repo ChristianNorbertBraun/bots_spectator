@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/ChristianNorbertBraun/bots_spectator.svg?branch=master)](https://travis-ci.org/ChristianNorbertBraun/bots_spectator)
 
-# bots spectator
+# Bots Spectator
 
-Web based visualization tool for [bots](https://github.com/markusfisch/bots).<br> 
+Web based visualization tool for [Bots](https://github.com/markusfisch/bots).<br> 
 It allows to view stored replays or to connect to a spectator port of a running bots server to see a match live.<br>
 It's also useful for debugging your own bot. 
 
