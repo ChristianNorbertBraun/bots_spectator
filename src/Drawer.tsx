@@ -144,8 +144,9 @@ export const Drawer = (props: {
                     mode3d={props.mode3d}
                     setMode3d={props.setMode3d}
                 />}
-                {currentTurn &&
+                {props.replay && currentTurn &&
                 <StatsTable
+                    replay={props.replay}
                     currentTurn={currentTurn}
                     tracedPlayers={props.tracedPlayers}
                     setTracedPlayers={props.setTracedPlayers}

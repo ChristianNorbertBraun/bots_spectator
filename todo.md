@@ -17,6 +17,9 @@ TODO
 - [ ] Bug: Sound shall only be initialized after first user interaction, otherwise Chrome etc. might prevent it
 
 - [X] Highlight winner or top 3 in player table
+- [X] Show explosion for dying bots
+- [X] Create replay file for every game mode for testing
+- [X] Update README.md
 - [X] Persist spectator URL across reloads
 - [X] Animate transition between 2d and 3d mode
 - [X] Add a welcome message when no replay is loaded yet, maybe the image of the flyer
