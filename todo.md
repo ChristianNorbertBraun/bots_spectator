@@ -2,8 +2,12 @@ TODO
 ====
 
 - [ ] Update README.md
-- [ ] Highlight winner or top 3 in player table
+- [ ] Change sorting of players in table during the game based on player score
 - [ ] Show explosion for dying bots
+- [ ] Stay connected after end of round (Depends of the mode of the server)
+- [ ] Think about statistical evaluations like number of turns for every bot over multiple rounds
+- [ ] Show projectiles when player is shooting
+- [ ] Show more clearly which bot killed whom
 - [ ] Create replay file for every game mode for testing
 - [ ] Add option to follow specific player (for 3d mode)
 - [ ] Bug: Should stop auto play and reset traced players (probably also reset rotation) when loading a new replay
@@ -12,6 +16,7 @@ TODO
 - [ ] Improve color contrast of torus
 - [ ] Bug: Sound shall only be initialized after first user interaction, otherwise Chrome etc. might prevent it
 
+- [X] Highlight winner or top 3 in player table
 - [X] Persist spectator URL across reloads
 - [X] Animate transition between 2d and 3d mode
 - [X] Add a welcome message when no replay is loaded yet, maybe the image of the flyer
