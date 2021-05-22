@@ -15,6 +15,7 @@ TODO
 - [ ] Allow to reset torus rotation
 - [ ] Improve color contrast of torus
 - [ ] Bug: Sound shall only be initialized after first user interaction, otherwise Chrome etc. might prevent it
+- [ ] Allow to turn off sound
 
 - [X] Highlight winner or top 3 in player table
 - [X] Show explosion for dying bots
