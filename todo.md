@@ -16,6 +16,7 @@ TODO
 - [ ] Improve color contrast of torus
 - [ ] Bug: Sound shall only be initialized after first user interaction, otherwise Chrome etc. might prevent it
 - [ ] Allow to turn off sound
+- [ ] Bug: Rotation of 3D-Torus does not work in Safari
 
 - [X] Highlight winner or top 3 in player table
 - [X] Show explosion for dying bots
